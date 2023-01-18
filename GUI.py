@@ -14,6 +14,7 @@ class GUI(ctk.CTk):
         self.EntryFont = ('Helvetica', 20, 'bold')
         self.HeaderFont = ('Helvetica', 30, 'bold')
         self.NormalFont = ('Helvetica', 24, 'bold')
+        self.FormationFont = ('Helvetica', 16, 'bold')
 
         self.geometry("1100x580")
         self.title("Football Simulation")
@@ -56,6 +57,8 @@ class GUI(ctk.CTk):
     def addBtnClick(self):
         self.clearWindow()
 
+        self.NameVar = ctk.StringVar()
+        self.FormationVar = ctk.StringVar()
         self.DefWidthVar = ctk.IntVar()
         self.AttackWidthVar = ctk.IntVar()
         self.DefLineVar = ctk.IntVar()
@@ -75,14 +78,14 @@ class GUI(ctk.CTk):
         self.HeaderLabel = ctk.CTkLabel(self, font=self.HeaderFont, text="Csapat Hozzáadása").grid(row=0, column=0, columnspan=5, pady=(10,30))
 
         self.NameLabel = ctk.CTkLabel(self, text="Csapat Név", font=self.EntryFont).grid(row=1, column=0, padx=(xPadding,0),sticky="w", pady=(10,0))
-        self.NameEntry = ctk.CTkEntry(self, font=self.EntryFont, width=280, height=40).grid(row=2, column=0 ,padx=(xPadding,0), sticky="w")
+        self.NameEntry = ctk.CTkEntry(self, font=self.EntryFont, width=280, height=40, textvariable=self.NameVar).grid(row=2, column=0 ,padx=(xPadding,0), sticky="w")
         
         self.FormationLabel = ctk.CTkLabel(self, text="Felállás", font=self.EntryFont).grid(row=3, column=0, padx=(xPadding,0),sticky="w", pady=(10,0))
-        self.FormationOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=Data.Formations).grid(row=4, column=0, padx=(xPadding,0), sticky="w")
+        self.FormationOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=Data.Formations, variable=self.FormationVar).grid(row=4, column=0, padx=(xPadding,0), sticky="w")
 
         self.AddPlayerButton = ctk.CTkButton(self,text="Játékos Hozzáadása",width=280, height=40, font=self.EntryFont, command=self.CreatePlayerBtn).grid(row=5, column=0,rowspan=2, padx=(xPadding,0), sticky="w", pady=(20,0))
 
-        self.TacticsLabel = ctk.CTkLabel(self, text="Tatktika", font=self.HeaderFont).grid(row=1, column=1, columnspan=4)
+        self.TacticsLabel = ctk.CTkLabel(self, text="Taktika", font=self.HeaderFont).grid(row=1, column=1, columnspan=4)
         
         self.DefendseLabel = ctk.CTkLabel(self, text="Védekezés", font=self.NormalFont).grid(row=2, column=1,columnspan=2)
         self.AttackLabel = ctk.CTkLabel(self, text="Támadás", font=self.NormalFont).grid(row=2, column=3, columnspan=2)
@@ -119,13 +122,44 @@ class GUI(ctk.CTk):
         self.ShootRateVarLabel = ctk.CTkLabel(self, textvariable = self.ShootRateVar, font=self.EntryFont).grid(row=10, column=3, sticky="e",padx=10)
         self.ShootRateSlider = ctk.CTkSlider(self, width=200, height=26,from_=0, to=100, number_of_steps=100, variable=self.ShootRateVar).grid(row=10, column=4, sticky="w", padx=(0,40))
 
-        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.EditBtnClick).grid(row=11, column=0, sticky="w", pady=(100,0), padx=xPadding)
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.EditBtnClick).grid(row=11, column=0, sticky="w", pady=(120,0), padx=xPadding)
                 
         
     def CreatePlayerBtn(self):
         self.clearWindow()
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=4)
+
+        LabelBgColor = "dark green"
+
+        PositionCordinates = {
+            
+        }
+
+        self.ReverseListoBox = tk.Listbox(self,background="dark slate grey").grid(row=0,column=0, sticky="nw")  
+        self.SubListBox = tk.Listbox(self,background="dark slate grey").grid(row=0, column=1, sticky="nw")
+        self.FormationFrame = ctk.CTkFrame(self, width=580,height=580, fg_color="green").grid(row=0, column=2,rowspan=2, sticky="e")
         
+        self.GKLabel = ctk.CTkLabel(self.FormationFrame, text="GK", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=800, y=520)
+        self.CB1Label = ctk.CTkLabel(self.FormationFrame, text="CB1", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=900, y=470)
+        self.CB2Label = ctk.CTkLabel(self.FormationFrame, text="CB2", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=700, y=470)
+        self.LBLabel = ctk.CTkLabel(self.FormationFrame, text="LB", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=600, y=460)
+        self.RBLabel = ctk.CTkLabel(self.FormationFrame, text="RB", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=1000, y=460)
+        self.CDMLabel = ctk.CTkLabel(self.FormationFrame, text="CDM", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=800, y=400)
+        self.CM1Label = ctk.CTkLabel(self.FormationFrame, text="CM1", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=900, y=350)
+        self.CM2Label = ctk.CTkLabel(self.FormationFrame, text="CM2", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=700, y=350)
+        self.LWLabel = ctk.CTkLabel(self.FormationFrame, text="LW", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=600, y=270)
+        self.RWLabel = ctk.CTkLabel(self.FormationFrame, text="RW", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=1000, y=270)
+        self.STLabel = ctk.CTkLabel(self.FormationFrame, text="ST", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=800, y=270)
+
+        
+
+        
+
         
 
 gui = GUI()
+gui.CreatePlayerBtn()
 gui.mainloop()
+
