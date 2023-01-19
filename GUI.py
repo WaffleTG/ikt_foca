@@ -1,6 +1,6 @@
 import tkinter as tk
 import customtkinter as ctk
-import Data
+from Data import Formations, PosCords
 from OtherFunctions import Save
 
 ctk.set_appearance_mode("dark")
@@ -81,7 +81,7 @@ class GUI(ctk.CTk):
         self.NameEntry = ctk.CTkEntry(self, font=self.EntryFont, width=280, height=40, textvariable=self.NameVar).grid(row=2, column=0 ,padx=(xPadding,0), sticky="w")
         
         self.FormationLabel = ctk.CTkLabel(self, text="Felállás", font=self.EntryFont).grid(row=3, column=0, padx=(xPadding,0),sticky="w", pady=(10,0))
-        self.FormationOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=Data.Formations, variable=self.FormationVar).grid(row=4, column=0, padx=(xPadding,0), sticky="w")
+        self.FormationOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=Formations, variable=self.FormationVar).grid(row=4, column=0, padx=(xPadding,0), sticky="w")
 
         self.AddPlayerButton = ctk.CTkButton(self,text="Játékos Hozzáadása",width=280, height=40, font=self.EntryFont, command=self.CreatePlayerBtn).grid(row=5, column=0,rowspan=2, padx=(xPadding,0), sticky="w", pady=(20,0))
 
@@ -133,15 +133,11 @@ class GUI(ctk.CTk):
 
         LabelBgColor = "dark green"
 
-        PositionCordinates = {
-            
-        }
-
         self.ReverseListoBox = tk.Listbox(self,background="dark slate grey").grid(row=0,column=0, sticky="nw")  
         self.SubListBox = tk.Listbox(self,background="dark slate grey").grid(row=0, column=1, sticky="nw")
         self.FormationFrame = ctk.CTkFrame(self, width=580,height=580, fg_color="green").grid(row=0, column=2,rowspan=2, sticky="e")
         
-        self.GKLabel = ctk.CTkLabel(self.FormationFrame, text="GK", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=800, y=520)
+        self.GKLabel = ctk.CTkLabel(self.FormationFrame, text="GK", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=PosCords["GK"][0], y=PosCords["GK"][1])
         self.CB1Label = ctk.CTkLabel(self.FormationFrame, text="CB1", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=900, y=470)
         self.CB2Label = ctk.CTkLabel(self.FormationFrame, text="CB2", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=700, y=470)
         self.LBLabel = ctk.CTkLabel(self.FormationFrame, text="LB", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=600, y=460)
@@ -149,12 +145,15 @@ class GUI(ctk.CTk):
         self.CDMLabel = ctk.CTkLabel(self.FormationFrame, text="CDM", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=800, y=400)
         self.CM1Label = ctk.CTkLabel(self.FormationFrame, text="CM1", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=900, y=350)
         self.CM2Label = ctk.CTkLabel(self.FormationFrame, text="CM2", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=700, y=350)
-        self.LWLabel = ctk.CTkLabel(self.FormationFrame, text="LW", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=600, y=270)
-        self.RWLabel = ctk.CTkLabel(self.FormationFrame, text="RW", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=1000, y=270)
+        self.LWLabel = ctk.CTkLabel(self.FormationFrame, text="LW", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=600, y=300)
+        self.RWLabel = ctk.CTkLabel(self.FormationFrame, text="RW", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=1000, y=300)
         self.STLabel = ctk.CTkLabel(self.FormationFrame, text="ST", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor).place(x=800, y=270)
 
-        
 
+        self.bind_class(ctk.CTkLabel, "<Button-1>", self.FormationLabelClick)
+
+    def FormationLabelClick(self, event):
+        print("clicked")
         
 
         
