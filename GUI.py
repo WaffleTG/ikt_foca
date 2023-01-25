@@ -113,7 +113,7 @@ class GUI(ctk.CTk):
         self.FormationLabel = ctk.CTkLabel(self, text="Felállás", font=self.EntryFont).grid(row=3, column=0, padx=(xPadding,0),sticky="w", pady=(10,0))
         self.FormationOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=Formations, variable=self.FormationVar).grid(row=4, column=0, padx=(xPadding,0), sticky="w")
 
-        self.AddPlayerButton = ctk.CTkButton(self,text="Játékos Hozzáadása",width=280, height=40, font=self.EntryFont, command=self.TeamFormationScreenBtn).grid(row=5, column=0,rowspan=2, padx=(xPadding,0), sticky="w", pady=(20,0))
+        self.AddPlayerButton = ctk.CTkButton(self,text="Játékos Szerkesztése",width=280, height=40, font=self.EntryFont, command=self.TeamFormationScreenBtn).grid(row=5, column=0,rowspan=2, padx=(xPadding,0), sticky="w", pady=(20,0))
 
         self.TacticsLabel = ctk.CTkLabel(self, text="Taktika", font=self.HeaderFont).grid(row=1, column=1, columnspan=4)
         
@@ -156,6 +156,7 @@ class GUI(ctk.CTk):
                  
     def TeamFormationScreenBtn(self):
         self.clearWindow()
+        self.ActiveTeam = Team(self.TeamNameVar.get(), self.FormationVar.get(), tactics={}, players={})
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=4)
@@ -239,9 +240,9 @@ class GUI(ctk.CTk):
 
     def CreatePlayerBtn(self, pos):
         self.clearWindow()
-        self.CreatedPlayer = Player("", 0, 0, 0, 0,0 ,0,pos)
         self.PlayerNameVar = ctk.StringVar(value="Name")
         self.PlayerPosVar = ctk.StringVar(value=pos)
+        self.CreatedPlayer = Player(self.PlayerNameVar.get(), 50,50,50,50,50,50,pos)
         self.StatVars = {}
         for key in self.CreatedPlayer.Stats.keys():
             self.StatVars.setdefault(key, ctk.IntVar())
@@ -258,7 +259,7 @@ class GUI(ctk.CTk):
         self.PlayerNameEntry = ctk.CTkEntry(self, font=self.EntryFont, width=280, height=40, textvariable=self.PlayerNameVar).grid(row=2, column=0, sticky="w", padx=(20,0), pady=(5,20))
         self.PlayerPosLabel = ctk.CTkLabel(self,text="Játékos Pozíciója", font=self.NormalFont).grid(row=3, column=0, sticky="w", padx=(20,0))
         self.PlayerPosOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=list(self.NameVariables.keys()), variable=self.PlayerPosVar).grid(row=4, column=0, sticky="w", padx=(20,0))
-        self.AddButon = ctk.CTkButton(self, width=280,height=40, text="Hozzáadás", font=self.ButtonFont, command=self.CreatePlayer).grid(row=5, column=0, sticky="w", padx=(20,0))
+        self.AddButon = ctk.CTkButton(self, width=280,height=40, text="Hozzáadás", font=self.ButtonFont, command= lambda: self.CreatePlayer(pos)).grid(row=5, column=0, sticky="w", padx=(20,0))
         #column1-3
     
         self.StatSetFrame = ctk.CTkFrame(self, width=900, height=350)
@@ -295,8 +296,14 @@ class GUI(ctk.CTk):
         self.TeamworkLabel = ctk.CTkLabel(self.StatSetFrame, text="Csapatmunka", font=self.NormalFont).grid(row=4, column=1)
         self.GoalkeeperLabel = ctk.CTkLabel(self.StatSetFrame, text="Vetődés", font=self.NormalFont).grid(row=4, column=4)
 
-    def CreatePlayer(self):
-        pass
+    def CreatePlayer(self, pos):
+        self.CreatedPlayer.Name = self.PlayerNameVar.get()
+        for key in self.CreatedPlayer.Stats.keys():
+            self.CreatedPlayer[key] = int(self.StatVars[key].get())
+        self.CreatedPlayer.Position = pos
+        self.ActiveTeam.Players[pos] = self.CreatedPlayer()
+        for player in self.ActiveTeam.Players.keys():
+            print(player)
 if __name__ == "__main__":
     gui = GUI()
     gui.mainloop()

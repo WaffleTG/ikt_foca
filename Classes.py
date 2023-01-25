@@ -26,12 +26,14 @@ class Team:
         self.Players = players
         self.Overall = 0
         self.TeamWorkOverall = 0
+        
+    def getTeamWork(self):
         for player in self.Players.values():
-            self.Overall += player.Overall
             self.TeamWorkOverall += player.Teamwork
-        self.Overall *= (self.TeamWorkOverall/50/len(self.Players))
+        return self.TeamWorkOverall
         
-        
+    def getOverall(self):
+        pass
 
 class Ref:
     def __init__(self, patience, truth) -> None:
