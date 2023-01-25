@@ -2,7 +2,7 @@ import tkinter as tk
 import customtkinter as ctk
 from Data import Formations, PosCords, LastSave, LastTeam
 from OtherFunctions import Save
-from Classes import Player
+from Classes import Player, Team
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -64,7 +64,6 @@ class GUI(ctk.CTk):
     def addBtnClick(self):
         
         self.clearWindow()
-        
         self.TeamNameVar = ctk.StringVar()
         self.FormationVar = ctk.StringVar()
         self.DefWidthVar = ctk.IntVar()
@@ -217,11 +216,11 @@ class GUI(ctk.CTk):
 
     def CreatePlayerBtn(self, pos):
         self.clearWindow()
-        CreatedPlayer = Player("", 0, 0, 0, 0,0 ,0,pos)
+        self.CreatedPlayer = Player("", 0, 0, 0, 0,0 ,0,pos)
         self.PlayerNameVar = ctk.StringVar(value="Name")
         self.PlayerPosVar = ctk.StringVar(value=pos)
         self.StatVars = {}
-        for key in CreatedPlayer.Stats.keys():
+        for key in self.CreatedPlayer.Stats.keys():
             self.StatVars.setdefault(key, ctk.IntVar())
 
         self.columnconfigure((0,1,2,3), weight=1)
@@ -236,24 +235,45 @@ class GUI(ctk.CTk):
         self.PlayerNameEntry = ctk.CTkEntry(self, font=self.EntryFont, width=280, height=40, textvariable=self.PlayerNameVar).grid(row=2, column=0, sticky="w", padx=(20,0), pady=(5,20))
         self.PlayerPosLabel = ctk.CTkLabel(self,text="Játékos Pozíciója", font=self.NormalFont).grid(row=3, column=0, sticky="w", padx=(20,0))
         self.PlayerPosOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=list(self.NameVariables.keys()), variable=self.PlayerPosVar).grid(row=4, column=0, sticky="w", padx=(20,0))
-        
+        self.AddButon = ctk.CTkButton(self, width=280,height=40, text="Hozzáadás", font=self.ButtonFont, command=self.CreatePlayer).grid(row=5, column=0, sticky="w", padx=(20,0))
         #column1-3
     
-        self.StatSetFrame = ctk.CTkFrame(self, width=700, height=350)
-        self.StatSetFrame.grid(row=1, column=1, columnspan=3, rowspan=5, sticky="n")
+        self.StatSetFrame = ctk.CTkFrame(self, width=900, height=350)
+        self.StatSetFrame.grid(row=1, column=1, columnspan=4, rowspan=6, sticky="n")
         
-        self.StatSetFrame.columnconfigure((0,2), weight=0)
-        self.StatSetFrame.columnconfigure((1,3), weight=1)
-        self.StatSetFrame.rowconfigure((0,1,2,3,4,5), weight=0)
+        self.StatSetFrame.columnconfigure((0,2,3), weight=0)
+        self.StatSetFrame.columnconfigure((1,4), weight=1)
+        self.StatSetFrame.rowconfigure((0,1,2,3,4,5,6), weight=0)
 
-        self.PaceVarLabel = ctk.CTkLabel(self.StatSetFrame, textvariable = self.StatVars["Pace"], font=self.EntryFont).grid(row=1, column=1, padx=(0,50))
-        self.PaceSlider = ctk.CTkSlider(self.StatSetFrame, width=200, height=26,from_=0, to=99, number_of_steps=100,variable=self.StatVars["Pace"]).grid(row=1, column=0, padx=10, sticky="e")
-        self.PassingVarLabel = ctk.CTkLabel(self.StatSetFrame, textvariable = self.StatVars["Passing"], font=self.EntryFont).grid(row=1, column=3, padx=(0,50))
-        self.PassingSlider = ctk.CTkSlider(self.StatSetFrame, width=200, height=26,from_=0, to=99, number_of_steps=100, variable=self.StatVars["Passing"]).grid(row=1, column=2, padx=10, sticky="e")
-        #Ha valami nagyobb van folotte akkor nem mozog
-        self.PaceLabel = ctk.CTkLabel(self.StatSetFrame, text="Gyorsaság", font=self.EntryFont).grid(row=0, column=1, sticky="w")
-        self.PassingLabel = ctk.CTkLabel(self.StatSetFrame, text="Passzolás", font=self.EntryFont).grid(row=0, column=3, sticky="w")
-        
+        self.PaceVarLabel = ctk.CTkLabel(self.StatSetFrame, textvariable = self.StatVars["Pace"], font=self.NormalFont).grid(row=1, column=0)
+        self.PaceSlider = ctk.CTkSlider(self.StatSetFrame, width=200, height=26,from_=0, to=99, number_of_steps=99,variable=self.StatVars["Pace"]).grid(row=1, column=1, sticky="w")
+        self.PassingVarLabel = ctk.CTkLabel(self.StatSetFrame, textvariable = self.StatVars["Passing"], font=self.NormalFont).grid(row=1, column=3)
+        self.PassingSlider = ctk.CTkSlider(self.StatSetFrame, width=200, height=26,from_=0, to=99, number_of_steps=99, variable=self.StatVars["Passing"]).grid(row=1, column=4, sticky="w")
+
+        self.Gap = ctk.CTkLabel(self.StatSetFrame, text="", font=self.NormalFont).grid(row=0, column=2, padx=50)
+        self.PaceLabel = ctk.CTkLabel(self.StatSetFrame, text="Gyorsaság", font=self.NormalFont).grid(row=0, column=1)
+        self.PassingLabel = ctk.CTkLabel(self.StatSetFrame, text="Passzolás", font=self.NormalFont).grid(row=0, column=4)
+        self.SpaceLabel1 = ctk.CTkLabel(self.StatSetFrame, text="  ", font=self.NormalFont).grid(row=0, column=0, padx=(0,30))
+        self.SpaceLabel2 = ctk.CTkLabel(self.StatSetFrame, text="  ", font=self.NormalFont).grid(row=0, column=3, padx=(30,0))
+
+        self.ShotVarLabel = ctk.CTkLabel(self.StatSetFrame, textvariable = self.StatVars["Attacking"], font=self.NormalFont).grid(row=3, column=0)
+        self.ShotSlider = ctk.CTkSlider(self.StatSetFrame, width=200, height=26,from_=0, to=99, number_of_steps=99,variable=self.StatVars["Attacking"]).grid(row=3, column=1, sticky="w")
+        self.DefVarLabel = ctk.CTkLabel(self.StatSetFrame, textvariable = self.StatVars["Defending"], font=self.NormalFont).grid(row=3, column=3)
+        self.DefSlider = ctk.CTkSlider(self.StatSetFrame, width=200, height=26,from_=0, to=99, number_of_steps=99, variable=self.StatVars["Defending"]).grid(row=3, column=4, sticky="w")
+
+        self.ShotLabel = ctk.CTkLabel(self.StatSetFrame, text="Támadás", font=self.NormalFont).grid(row=2, column=1)
+        self.DefLabel = ctk.CTkLabel(self.StatSetFrame, text="Védekezés", font=self.NormalFont).grid(row=2, column=4)
+
+        self.TeamworkVarLabel = ctk.CTkLabel(self.StatSetFrame, textvariable = self.StatVars["Teamwork"], font=self.NormalFont).grid(row=5, column=0)
+        self.TeamworkSlider = ctk.CTkSlider(self.StatSetFrame, width=200, height=26,from_=0, to=99, number_of_steps=99,variable=self.StatVars["Teamwork"]).grid(row=5, column=1, sticky="w")
+        self.GoalkeeperVarLabel = ctk.CTkLabel(self.StatSetFrame, textvariable = self.StatVars["GoalKeeping"], font=self.NormalFont).grid(row=5, column=3)
+        self.GoalkeeperSlider = ctk.CTkSlider(self.StatSetFrame, width=200, height=26,from_=0, to=99, number_of_steps=99, variable=self.StatVars["GoalKeeping"]).grid(row=5, column=4, sticky="w")
+
+        self.TeamworkLabel = ctk.CTkLabel(self.StatSetFrame, text="Csapatmunka", font=self.NormalFont).grid(row=4, column=1)
+        self.GoalkeeperLabel = ctk.CTkLabel(self.StatSetFrame, text="Vetődés", font=self.NormalFont).grid(row=4, column=4)
+
+    def CreatePlayer(self):
+        pass
 if __name__ == "__main__":
     gui = GUI()
     gui.mainloop()
