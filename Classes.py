@@ -14,19 +14,21 @@ class Player:
         self.Teamwork = teamwork
         self.Position = pos
         self.Overall = int(sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)
+        
 
 class Team:
-    def __init__(self, name, formation, tactics, players) -> None:
+    def __init__(self, name: str, formation: str, tactics: dict,players: dict) -> None:
         self.Name = name
         self.Formation = formation
         self.Tatcitcs = tactics
         self.Players = players
         self.Overall = 0
         self.TeamWorkOverall = 0
-        for player in self.Players:
+        for player in self.Players.values():
             self.Overall += player.Overall
             self.TeamWorkOverall += player.Teamwork
         self.Overall *= (self.TeamWorkOverall/50/len(self.Players))
+        
         
 
 class Ref:
