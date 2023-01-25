@@ -1,7 +1,7 @@
 import tkinter as tk
 import customtkinter as ctk
 from Data import Formations, PosCords, LastSave, LastTeam
-from OtherFunctions import Save
+from OtherFunctions import Save, Load
 from Classes import Player, Team
 
 ctk.set_appearance_mode("dark")
@@ -33,6 +33,26 @@ class GUI(ctk.CTk):
             widget.destroy()
         self.unbind_all('<Button-1>')
 
+    def LoadFinish(self, szoveg):
+        self.clearWindow()
+        self.AlertLabel = ctk.CTkLabel(self, font=self.HeaderFont, text=szoveg)
+        self.AlertLabel.pack(pady=30)
+
+        self.ContinueBtn = ctk.CTkButton(self, 300, 80, text="Folytatás", font=self.ButtonFont, command=self.StartScreen)
+        self.ContinueBtn.pack(pady=30)
+
+    def ChooseSaveSlot(self):
+        self.clearWindow()
+        
+        self.slot1Btn = ctk.CTkButton(self, 400,80, text="Első mentés", font=self.ButtonFont, command=lambda:[self.LoadFinish(Load(1))])
+        self.slot1Btn.pack(pady=30)
+
+        self.slot2Btn = ctk.CTkButton(self, 400, 80, text="Második mentés", font=self.ButtonFont, command=lambda:[self.LoadFinish(Load(2))])
+        self.slot2Btn.pack(pady=0)
+
+        self.slot3Btn = ctk.CTkButton(self, 400, 80, text="Harmadik mentés", font=self.ButtonFont, command=lambda:[self.LoadFinish(Load(3))])
+        self.slot3Btn.pack(pady=30)
+
     def StartScreen(self):
         self.clearWindow()
         self.PlayBtn = ctk.CTkButton(self, 400, 80, text="Játék Számítógép ellen", font=self.ButtonFont, command=self.clearWindow)
@@ -42,7 +62,10 @@ class GUI(ctk.CTk):
         self.EditBtn.pack(pady=0)
         
         self.SpecialModeBtn = ctk.CTkButton(self, 400, 80, text="Speciális játékmód", font=self.ButtonFont, command=self.clearWindow)
-        self.SpecialModeBtn.pack(pady=30)
+        self.SpecialModeBtn.pack(pady=(30,0))
+
+        self.LoadSaveBtn = ctk.CTkButton(self, 400, 80, text="Mentés betöltése", font=self.ButtonFont, command=self.ChooseSaveSlot)
+        self.LoadSaveBtn.pack(pady=30)
 
     def EditBtnClick(self):
         self.clearWindow()
