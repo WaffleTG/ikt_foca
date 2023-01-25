@@ -23,7 +23,9 @@ def Load(slot:int):
             players = adatok[3].split(",")
             teams.append(Team(adatok[0], adatok[1], tact, players))
         f.close()
+        return "Sikeres Betöltés"
     except:
         f = open(f"save{slot}.save", "w", encoding="utf-8")
         f.write(" ")
         f.close()
+        return "Új fájl létrehozva"

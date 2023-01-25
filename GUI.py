@@ -33,16 +33,24 @@ class GUI(ctk.CTk):
             widget.destroy()
         self.unbind_all('<Button-1>')
 
+    def LoadFinish(self, szoveg):
+        self.clearWindow()
+        self.AlertLabel = ctk.CTkLabel(self, font=self.HeaderFont, text=szoveg)
+        self.AlertLabel.pack(pady=30)
+
+        self.ContinueBtn = ctk.CTkButton(self, 300, 80, text="Folytatás", font=self.ButtonFont, command=self.StartScreen)
+        self.ContinueBtn.pack(pady=30)
+
     def ChooseSaveSlot(self):
         self.clearWindow()
         
-        self.slot1Btn = ctk.CTkButton(self, 400,80, text="Első mentés", font=self.ButtonFont, command=lambda:[self.StartScreen(), Load(1)])
+        self.slot1Btn = ctk.CTkButton(self, 400,80, text="Első mentés", font=self.ButtonFont, command=lambda:[self.LoadFinish(Load(1))])
         self.slot1Btn.pack(pady=30)
 
-        self.slot2Btn = ctk.CTkButton(self, 400, 80, text="Második mentés", font=self.ButtonFont, command=lambda:[self.StartScreen(), Load(2)])
+        self.slot2Btn = ctk.CTkButton(self, 400, 80, text="Második mentés", font=self.ButtonFont, command=lambda:[self.LoadFinish(Load(2))])
         self.slot2Btn.pack(pady=0)
 
-        self.slot3Btn = ctk.CTkButton(self, 400, 80, text="Harmadik mentés", font=self.ButtonFont, command=lambda:[self.StartScreen(), Load(3)])
+        self.slot3Btn = ctk.CTkButton(self, 400, 80, text="Harmadik mentés", font=self.ButtonFont, command=lambda:[self.LoadFinish(Load(3))])
         self.slot3Btn.pack(pady=30)
 
     def StartScreen(self):
