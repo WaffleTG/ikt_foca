@@ -173,7 +173,7 @@ class GUI(ctk.CTk):
         for key, val in self.TacticsVars.items():
             self.Tactics.setdefault(key, val.get())
         for pos in PosCords.keys():
-                self.NameVariables.setdefault(pos, ctk.StringVar(value=pos))
+            self.NameVariables.setdefault(pos, ctk.StringVar(value=pos))
         try:
             for key, val in self.ActiveTeam.Players.items():
                 self.NameVariables[key] = ctk.StringVar(value=val.Name)
@@ -198,14 +198,18 @@ class GUI(ctk.CTk):
 
         LabelBgColor = "dark green"
         self.LabelCursor = "circle"
-        self.ReserveLabel = ctk.CTkLabel(self,text="Tartalékok", font=self.HeaderFont).grid(row=0, column=0, sticky="s", pady=5)
-        self.ReserveListoBox = tk.Listbox(self,background="dark slate grey", width=30, height=20).grid(row=1,column=0, sticky="nw", padx=(10,5))  
-        self.ReserveAddButton = ctk.CTkButton(self, width=160,height=30, text="+", font=('Helvetica', 40, 'bold'), command=lambda: self.CreatePlayerBtn("Res"))
-        self.ReserveAddButton.grid(row=2, column=0, sticky="n", pady="15")
-        self.SubLabel = ctk.CTkLabel(self,text="Cserék", font=self.HeaderFont).grid(row=0, column=1, sticky="s", pady=5)
-        self.SubListBox = tk.Listbox(self,background="dark slate grey", width=30, height=20).grid(row=1, column=1, sticky="nw", padx=(5,10))
-        self.SubAddButton = ctk.CTkButton(self, width=160,text="+", font=('Helvetica', 40, 'bold'), command=lambda: self.CreatePlayerBtn("Sub"))
-        self.SubAddButton.grid(row=2, column=1, sticky="n", pady="15")
+        
+        self.ReserveFrame = ctk.CTkFrame(self, width=200, fg_color="dark slate grey")
+        self.ReserveFrame.grid(row=0,column=0,rowspan=3, sticky="n")  
+        self.ReserveAlign = ctk.CTkLabel(self.ReserveFrame,text="                          ", font=self.HeaderFont).pack()
+        self.ReserveLabel = ctk.CTkLabel(self.ReserveFrame,text="Tartalékok", font=self.HeaderFont).pack()
+        
+        
+        
+        self.SubFrame = ctk.CTkFrame(self, width=200, fg_color="dark slate grey")
+        self.SubFrame.grid(row=0, column=1, rowspan=3, sticky="n")
+        self.SubAlign = ctk.CTkLabel(self.SubFrame,text="                          ", font=self.HeaderFont).pack()
+        self.SubLabel = ctk.CTkLabel(self.SubFrame,text="Cserék", font=self.HeaderFont).pack()
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.addBtnClick).grid(row=3, column=0, sticky="nw", padx=20)
         self.FormationFrame = ctk.CTkFrame(self, width=700,height=580, fg_color="green")
         self.FormationFrame.grid(row=0, column=2,rowspan=5, sticky="e")
@@ -240,6 +244,7 @@ class GUI(ctk.CTk):
             self.RSTLabel = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["RST"], font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=PosCords["RST"][0], y=PosCords["RST"][1])
 
         self.FormationFrame.bind_class('Label', "<Button-1>", self.FormationLabelClick)
+        self.FormationFrame.bind_class('Label', "<Button-3>", self.PlayerEditClick)
         
     def FormationLabelClick(self, event):
         #majd try: except attributeError: pass
@@ -254,14 +259,40 @@ class GUI(ctk.CTk):
                 else:
                     #Bind Click on another player to switch
 
-                    self.FormationFrame.bind_class('Label', '<Button-1>', lambda a=event.widget:self.PlayerSwitchByName(self, a), add=False)
+                    self.FormationFrame.bind_class('Label', '<Button-1>', lambda event, a=event.widget:self.PlayerSwitchByName(event=event, widget1=a), add=False)
+        except AttributeError:
+            pass
+    def PlayerEditClick(self, event):
+        try:
+            if event.widget.cget('cursor') == self.LabelCursor:
+                self.CreatePlayerBtn(self.GetPlayerPos(event.widget))
+        except AttributeError:
+            pass
+
+    def PlayerSwitchByName(self, widget1, event):
+        try:
+            if event.widget.cget('cursor') == self.LabelCursor:
+                print("PlayerSwitchByName")
+                widget2 = event.widget
+                if widget2 == widget1:
+                    return
+                self.FormationFrame.bind_class('Label', '<Button-1>', self.FormationLabelClick, add=False)
+                W1Pos = self.GetPlayerPos(widget1)
+                W2Pos = self.GetPlayerPos(widget2)
+                if W2Pos in self.ActiveTeam.Players.keys():
+                    TmpPlayer2 = self.ActiveTeam.Players[W2Pos]
+                    self.ActiveTeam.Players[W2Pos] = self.ActiveTeam.Players[W1Pos] 
+                    self.ActiveTeam.Players[W1Pos] = TmpPlayer2
+                    self.NameVariables[W1Pos].set(self.ActiveTeam.Players[W1Pos].Name)
+                    self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name)
+                else:
+                    self.ActiveTeam.Players.setdefault(W2Pos, self.ActiveTeam.Players[W1Pos])
+                    self.ActiveTeam.Players.pop(W1Pos)
+                    self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name) 
+                    self.NameVariables[W1Pos].set(W1Pos)
         except AttributeError:
             pass
         
-    def PlayerSwitchByName(self, event, widget1):
-        print("PlayerSwitchByName")
-        self.FormationFrame.bind_class('Label', '<Button-1>', self.FormationLabelClick, add=False)
-              
     def GetPlayerPos(self, widget):
         xOffest = self.GKLabel.winfo_rootx() - PosCords["GK"][0]
         yOffset = self.GKLabel.winfo_rooty() - PosCords["GK"][1] + 4
@@ -270,12 +301,22 @@ class GUI(ctk.CTk):
 
     def CreatePlayerBtn(self, pos):
         self.clearWindow()
-        self.PlayerNameVar = ctk.StringVar(value="Name")
+        self.PlayerNameVar = ctk.StringVar(value="Enter Player Name")
         self.PlayerPosVar = ctk.StringVar(value=pos)
-        self.CreatedPlayer = Player(self.PlayerNameVar.get(), 50,50,50,50,50,50,pos)
+
+        if self.NameVariables[pos].get() != pos:
+            #Edit Player
+            self.PlayerNameVar.set(self.NameVariables[pos].get())
+            self.CreatedPlayer = self.ActiveTeam.Players[pos]
+            self.PlayerPosVar.set(self.CreatedPlayer.Position)
+            addBtnText = "Szerkesztés Befejezése"
+        else:
+            self.CreatedPlayer = Player(self.PlayerNameVar.get(), 50,50,50,50,50,50,pos)
+            addBtnText = "Hozzáadás"
+
         self.StatVars = {}
         for key in self.CreatedPlayer.Stats.keys():
-            self.StatVars.setdefault(key, ctk.IntVar())
+            self.StatVars.setdefault(key, ctk.IntVar(value=self.CreatedPlayer.Stats[key]))
 
         self.columnconfigure((0,1,2,3), weight=1)
         self.columnconfigure(4, weight=0)
@@ -289,7 +330,7 @@ class GUI(ctk.CTk):
         self.PlayerNameEntry = ctk.CTkEntry(self, font=self.EntryFont, width=280, height=40, textvariable=self.PlayerNameVar).grid(row=2, column=0, sticky="w", padx=(20,0), pady=(5,20))
         self.PlayerPosLabel = ctk.CTkLabel(self,text="Játékos Pozíciója", font=self.NormalFont).grid(row=3, column=0, sticky="w", padx=(20,0))
         self.PlayerPosOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=list(self.NameVariables.keys()), variable=self.PlayerPosVar).grid(row=4, column=0, sticky="w", padx=(20,0))
-        self.AddButon = ctk.CTkButton(self, width=280,height=40, text="Hozzáadás", font=self.ButtonFont, command= lambda: self.CreatePlayer(pos)).grid(row=5, column=0, sticky="w", padx=(20,0))
+        self.AddButon = ctk.CTkButton(self, width=280,height=40, text=addBtnText, font=self.ButtonFont, command= lambda: self.CreatePlayer(pos)).grid(row=5, column=0, sticky="w", padx=(20,0))
         #column1-3
     
         self.StatSetFrame = ctk.CTkFrame(self, width=900, height=350)
@@ -333,8 +374,8 @@ class GUI(ctk.CTk):
         self.CreatedPlayer.Position = pos
         self.ActiveTeam.Players[pos] = self.CreatedPlayer
         self.TeamFormationScreenBtn("edit")
-        # for player in self.ActiveTeam.Players.values():
-        #     print(player.Name)
+        for player in self.ActiveTeam.Players.values():
+            print(player.Name)
 if __name__ == "__main__":
     gui = GUI()
     gui.mainloop()
