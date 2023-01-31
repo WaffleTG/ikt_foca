@@ -199,21 +199,10 @@ class GUI(ctk.CTk):
         LabelBgColor = "dark green"
         self.LabelCursor = "circle"
         
-        self.ReserveFrame = ctk.CTkFrame(self, width=200, fg_color="dark slate grey")
-        self.ReserveFrame.grid(row=0,column=0,rowspan=3, sticky="n")  
-        self.ReserveAlign = ctk.CTkLabel(self.ReserveFrame,text="                          ", font=self.HeaderFont).pack()
-        self.ReserveLabel = ctk.CTkLabel(self.ReserveFrame,text="Tartalékok", font=self.HeaderFont).pack()
-        
-        
-        
-        self.SubFrame = ctk.CTkFrame(self, width=200, fg_color="dark slate grey")
-        self.SubFrame.grid(row=0, column=1, rowspan=3, sticky="n")
-        self.SubAlign = ctk.CTkLabel(self.SubFrame,text="                          ", font=self.HeaderFont).pack()
-        self.SubLabel = ctk.CTkLabel(self.SubFrame,text="Cserék", font=self.HeaderFont).pack()
-        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.addBtnClick).grid(row=3, column=0, sticky="nw", padx=20)
+       
         self.FormationFrame = ctk.CTkFrame(self, width=700,height=580, fg_color="green")
         self.FormationFrame.grid(row=0, column=2,rowspan=5, sticky="e")
-
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.addBtnClick).grid(row=3, column=0, sticky="nw", padx=20)
         self.GKLabel = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["GK"], font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor)
         self.GKLabel.place(x=PosCords["GK"][0], y=PosCords["GK"][1])
         self.CB1Label = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["CB1"], font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=PosCords["CB1"][0],y=PosCords["CB1"][1])
@@ -242,6 +231,26 @@ class GUI(ctk.CTk):
             self.RMLabel = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["RM"], font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=PosCords["RM"][0], y=PosCords["RM"][1])
             self.LSTLabel = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["LST"], font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=PosCords["LST"][0], y=PosCords["LST"][1])
             self.RSTLabel = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["RST"], font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=PosCords["RST"][0], y=PosCords["RST"][1])
+
+        self.ReserveFrame = ctk.CTkFrame(self, width=200)
+        self.ReserveFrame.grid(row=0,column=0,rowspan=3, sticky="n")  
+        
+        self.ReserveLabel = ctk.CTkLabel(self.ReserveFrame,text="Tartalékok", font=self.HeaderFont).pack()
+        self.ReserveAlign = ctk.CTkLabel(self.ReserveFrame,text="                          ", font=self.HeaderFont).pack()
+        
+        
+        
+        self.SubFrame = ctk.CTkFrame(self, width=200)
+        self.SubFrame.grid(row=0, column=1, rowspan=3, sticky="n")
+        
+        self.SubLabel = ctk.CTkLabel(self.SubFrame,text="Cserék", font=self.HeaderFont).pack()
+        self.SubAlign = ctk.CTkLabel(self.SubFrame,text="                          ", font=self.HeaderFont).pack(pady=(0,200))
+        
+        self.Sub1Label = ctk.CTkLabel(self.SubFrame, text="dasdasd", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=5,y=50)
+        self.Sub2Label = ctk.CTkLabel(self.SubFrame, text="a", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=5,y=80)
+        self.Sub3Label = ctk.CTkLabel(self.SubFrame, text="Sub3", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=0,y=110)
+        self.Sub4Label = ctk.CTkLabel(self.SubFrame, text="Sub4", font=self.FormationFont, fg_color=LabelBgColor, bg_color=LabelBgColor, cursor=self.LabelCursor).place(x=0,y=140)
+
 
         self.FormationFrame.bind_class('Label', "<Button-1>", self.FormationLabelClick)
         self.FormationFrame.bind_class('Label', "<Button-3>", self.PlayerEditClick)
@@ -294,10 +303,14 @@ class GUI(ctk.CTk):
             pass
         
     def GetPlayerPos(self, widget):
-        xOffest = self.GKLabel.winfo_rootx() - PosCords["GK"][0]
-        yOffset = self.GKLabel.winfo_rooty() - PosCords["GK"][1] + 4
-        LabelPos = (widget.winfo_rootx() - xOffest, widget.winfo_rooty() - yOffset)
-        return list(PosCords.keys())[list(PosCords.values()).index(LabelPos)]
+        
+        try:
+            xOffest = self.GKLabel.winfo_rootx() - PosCords["GK"][0]
+            yOffset = self.GKLabel.winfo_rooty() - PosCords["GK"][1] + 4
+            LabelPos = (widget.winfo_rootx() - xOffest, widget.winfo_rooty() - yOffset)
+            return list(PosCords.keys())[list(PosCords.values()).index(LabelPos)]
+        except ValueError:
+            return LabelPos
 
     def CreatePlayerBtn(self, pos):
         self.clearWindow()

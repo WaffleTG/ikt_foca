@@ -19,7 +19,9 @@ PosCords = {
     "RW": (615, 170),
     "ST": (350, 150),
     "RST": (450, 150),
-    "LST":(250, 150)
+    "LST":(250, 150),
+    "SUB1":(5,50),
+    "RES1":()
 }
 LastTeam = None
 LastSave = None
