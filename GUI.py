@@ -54,7 +54,7 @@ class GUI(ctk.CTk):
 
     def StartScreen(self):
         self.clearWindow()
-        self.PlayBtn = ctk.CTkButton(self, 400, 80, text="Játék Számítógép ellen", font=self.ButtonFont)
+        self.PlayBtn = ctk.CTkButton(self, 400, 80, text="Játék Számítógép ellen", font=self.ButtonFont, command=self.GameVsAi)
         self.PlayBtn.pack(pady=30)
         
         self.EditBtn = ctk.CTkButton(self, 400, 80, text="Csapatok szerkesztése", font=self.ButtonFont, command=self.EditBtnClick)
@@ -66,6 +66,25 @@ class GUI(ctk.CTk):
         self.LoadSaveBtn = ctk.CTkButton(self, 400, 80, text="Mentés betöltése", font=self.ButtonFont, command=self.ChooseSaveSlot)
         self.LoadSaveBtn.pack(pady=30)
 
+    def GameVsAi(self):
+        self.clearWindow()
+        self.selectedVar = ctk.StringVar()
+
+        self.columnconfigure((0,1,2), weight=1)
+        self.rowconfigure((0,1,2,3,4,5), weight=1)
+
+        self.teamLabel = ctk.CTkLabel(self, text="Válassz csapatot!", font=(self.EntryFont, 40)).grid(row=0, column=1, sticky="n")
+
+        self.teamDrpdwn =  ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.selectedVar)
+        self.teamDrpdwn.set(list(Teams.keys())[0])
+        self.teamDrpdwn.grid(row=1, column=1, sticky="n")
+
+        self.statLabel1 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Formation), font=(self.EntryFont, 25)).grid(row=2, column=0, sticky="e")
+        self.statLabel2 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Tactics), font=(self.EntryFont, 25)).grid(row=2, column=1)
+        self.statLabel3 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Players), font=(self.EntryFont, 25)).grid(row=2, column=2, sticky="w")
+
+        self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont).grid(row=4, column=1, sticky="s")
+        
     def EditBtnClick(self):
         self.clearWindow()
         
@@ -179,8 +198,7 @@ class GUI(ctk.CTk):
                 self.NameVariables[key] = ctk.StringVar(value=val.Name)
         except AttributeError:
             self.ActiveTeam = Team(self.TeamNameVar.get(), self.FormationVar.get(), tactics=self.Tactics, players={})
-            Teams.append(self.ActiveTeam)
-
+            Teams[self.ActiveTeam.Name]= self.ActiveTeam
         # if mode == "add":
             
             

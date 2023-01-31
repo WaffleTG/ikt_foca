@@ -3,7 +3,7 @@ from Data import Teams
 
 def Save(slot:int):
     f = open(f"save{slot}.save", "w", encoding="utf-8")
-    for team in Teams:
+    for team in Teams.values():
         f.write(f"{team.Name};{team.Formation};")
         for a in team.Tactics:
             f.write(f"{a},")
@@ -21,7 +21,7 @@ def Load(slot:int):
             adatok = sor.strip().split(";")
             tact = adatok[2].split(",")
             players = adatok[3].split(",")
-            teams.append(Team(adatok[0], adatok[1], tact, players))
+            teams[adatok[0]] = Team(adatok[0], adatok[1], tact, players)
         f.close()
         return "Sikeres Betöltés"
     except:
@@ -29,3 +29,5 @@ def Load(slot:int):
         f.write(" ")
         f.close()
         return "Új fájl létrehozva"
+
+# def 
