@@ -1,6 +1,6 @@
-import Classes
+from Classes import Team
 Formations = ("4-4-2", "4-3-3", "3-5-2", "4-2-3-1")
-Teams = []
+Teams = {"Joe team":Team("Joe team", "4-4-2", [],[])}
 PosCords = {
     "GK": (350, 520),
     "CB1": (475, 450),
@@ -25,3 +25,4 @@ PosCords = {
 }
 LastTeam = None
 LastSave = None
+currentSS = 1
