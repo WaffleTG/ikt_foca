@@ -1,6 +1,6 @@
 import tkinter as tk
 import customtkinter as ctk
-from Data import Teams, Formations, PosCords, LastSave, LastTeam
+from Data import Teams, Formations, PosCords, LastSave, LastTeam, currentSS
 from OtherFunctions import Save, Load
 from Classes import Player, Team
 
@@ -84,6 +84,8 @@ class GUI(ctk.CTk):
         self.statLabel3 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Players), font=(self.EntryFont, 25)).grid(row=2, column=2, sticky="w")
 
         self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont).grid(row=4, column=1, sticky="s")
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
+        self.BackBtn.grid(row=5, column=0, sticky="sw")
         
     def EditBtnClick(self):
         self.clearWindow()
@@ -97,7 +99,7 @@ class GUI(ctk.CTk):
         self.DeleteBtn = ctk.CTkButton(self, 400, 80, text="Csapat Törlése", font=self.ButtonFont, command=self.clearWindow)
         self.DeleteBtn.pack(pady=30)
 
-        self.SaveBtn = ctk.CTkButton(self, 400, 80, text="Mentés", font=self.ButtonFont, command=Save)
+        self.SaveBtn = ctk.CTkButton(self, 400, 80, text="Mentés", font=self.ButtonFont, command=Save(currentSS))
         self.SaveBtn.pack(pady=0)
 
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)

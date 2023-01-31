@@ -23,3 +23,4 @@ PosCords = {
 }
 LastTeam = None
 LastSave = None
+currentSS = 1
