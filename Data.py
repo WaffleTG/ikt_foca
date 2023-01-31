@@ -19,10 +19,13 @@ PosCords = {
     "RW": (615, 170),
     "ST": (350, 150),
     "RST": (450, 150),
-    "LST":(250, 150),
-    "SUB1":(5,50),
-    "RES1":()
+    "LST":(250, 150)
 }
+for i in range(1, 9):
+    PosCords.setdefault(f"SUB{i}", (235, 20+i*35))
+    PosCords.setdefault(f"RES{i}", (20, 20+i*35))
+for i in range(9, 11):
+    PosCords.setdefault(f"RES{i}", (20, 20+i*35))
 LastTeam = None
 LastSave = None
 currentSS = 1
