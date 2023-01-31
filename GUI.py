@@ -11,7 +11,6 @@ class GUI(ctk.CTk):
     def __init__(self) -> None:
         super().__init__()
 
-        
         self.ButtonFont = ('Helvetica', 26, 'bold')
         self.EntryFont = ('Helvetica', 20, 'bold')
         self.HeaderFont = ('Helvetica', 30, 'bold')
@@ -25,7 +24,6 @@ class GUI(ctk.CTk):
         self.resizable(False, False)
         self.StartScreen()
                
-
     def clearWindow(self):
         for widget in self.winfo_children():
             widget.destroy()
@@ -50,6 +48,9 @@ class GUI(ctk.CTk):
 
         self.slot3Btn = ctk.CTkButton(self, 400, 80, text="Harmadik mentés", font=self.ButtonFont, command=lambda:[self.LoadFinish(Load(3))])
         self.slot3Btn.pack(pady=30)
+
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
+        self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
 
     def StartScreen(self):
         self.clearWindow()
@@ -84,7 +85,6 @@ class GUI(ctk.CTk):
         self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
 
     def addBtnClick(self):
-        
         self.clearWindow()
         self.TacticsVars = {
             "Defwidth": ctk.IntVar(),
