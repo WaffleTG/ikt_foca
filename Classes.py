@@ -27,6 +27,10 @@ class Team:
         self.Players = players
         self.Overall = 0
         self.TeamWorkOverall = 0
+        self.AttOverall = 0
+        self.MidOverall = 0
+        self.DefOverall = 0
+        self.KeeperOverall = 0
         
     def getTeamWork(self):
         for player in self.Players.values():

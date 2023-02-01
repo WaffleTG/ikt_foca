@@ -22,8 +22,7 @@ class GUI(ctk.CTk):
         self.geometry("1100x580")
         self.title("Football Simulation")
         self.resizable(False, False)
-        self.StartScreen()
-               
+        self.StartScreen()            
     def clearWindow(self):
         for widget in self.winfo_children():
             widget.destroy()

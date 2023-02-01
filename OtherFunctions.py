@@ -33,3 +33,16 @@ def Load(slot:int):
         return "Új fájl létrehozva"
 
 # def 
+def SimulateMatch(team1: Team, team2: Team, Chances: int=10, MatchLength: int=90):
+    for chance in Chances:
+        pass
+def SetTeamStats(team: Team):
+    team.KeeperOverall = team.Players["GK"].Stats["GoalKeeping"] * team.TeamWorkOverall/len(team.Players.Stats.values())
+    for key, player in team.Players.items():
+        if "B" in key:
+            team.DefOverall += player.Overall
+        elif "M" in key:
+            team.MidOverall += player.Overall
+        elif "W" in key or "T" in key:
+            team.AttOverall += player.Overall
+       
