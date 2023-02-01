@@ -79,9 +79,12 @@ class GUI(ctk.CTk):
         self.teamDrpdwn.set(list(Teams.keys())[0])
         self.teamDrpdwn.grid(row=1, column=1, sticky="n")
 
-        self.statLabel1 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Formation), font=(self.EntryFont, 25)).grid(row=2, column=0, sticky="e")
-        self.statLabel2 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Tactics), font=(self.EntryFont, 25)).grid(row=2, column=1)
-        self.statLabel3 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Players), font=(self.EntryFont, 25)).grid(row=2, column=2, sticky="w")
+        self.statLabel1 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Formation), font=(self.EntryFont, 25)).grid(row=3, column=0, sticky="e")
+        self.statNameLabel1 = ctk.CTkLabel(self, text="Felállás", font=(self.EntryFont, 25)).grid(row=2, column=0, sticky="e")
+        self.statLabel2 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Tactics), font=(self.EntryFont, 25)).grid(row=3, column=1)
+        self.statNameLabel1 = ctk.CTkLabel(self, text="Taktika", font=(self.EntryFont, 25)).grid(row=2, column=1)
+        self.statLabel3 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Players), font=(self.EntryFont, 25)).grid(row=3, column=2, sticky="w")
+        self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25)).grid(row=2, column=2, sticky="w")
 
         self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont).grid(row=4, column=1, sticky="s")
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
@@ -423,6 +426,7 @@ class GUI(ctk.CTk):
         self.TeamFormationScreenBtn("edit")
         for player in self.ActiveTeam.Players.values():
             print(player.Name)
+
 if __name__ == "__main__":
     gui = GUI()
     gui.mainloop()
