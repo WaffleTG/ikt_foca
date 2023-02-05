@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.messagebox as tkm
 import customtkinter as ctk
 from Data import Teams, Formations, PosCords, LastSave, LastTeam, currentSS
 from OtherFunctions import Save, Load
@@ -23,10 +24,19 @@ class GUI(ctk.CTk):
         self.title("Football Simulation")
         self.resizable(False, False)
         self.StartScreen()            
+        self.bind_class('Entry', '<Control-BackSpace>', self.entry_ctrl_bs)
     def clearWindow(self):
         for widget in self.winfo_children():
             widget.destroy()
-        self.unbind_all('<Button-1>')
+        self.unbind_class('Label', '<Button-1>')
+        self.unbind_class('Label','<Button-3>')
+
+    def entry_ctrl_bs(self, event):
+        ent = event.widget
+        end_idx = ent.index(ctk.INSERT)
+        start_idx = ent.get().rfind(" ", None, end_idx)
+        ent.delete(start_idx, end_idx) 
+
 
     def LoadFinish(self, szoveg):
         self.clearWindow()
@@ -95,13 +105,13 @@ class GUI(ctk.CTk):
         self.addBtn = ctk.CTkButton(self, 400, 80, text="Csapat Hozzáadása", font=self.ButtonFont, command=self.addBtnClick)
         self.addBtn.pack(pady=30)
 
-        self.EditBtn = ctk.CTkButton(self, 400, 80, text="Csapat Szerkesztése", font=self.ButtonFont, command=self.clearWindow)
+        self.EditBtn = ctk.CTkButton(self, 400, 80, text="Csapat Szerkesztése", font=self.ButtonFont, command=lambda: self.ChooseTeam("edit"))
         self.EditBtn.pack(pady=0)
 
-        self.DeleteBtn = ctk.CTkButton(self, 400, 80, text="Csapat Törlése", font=self.ButtonFont, command=self.clearWindow)
+        self.DeleteBtn = ctk.CTkButton(self, 400, 80, text="Csapat Törlése", font=self.ButtonFont, command=lambda: self.ChooseTeam("delete"))
         self.DeleteBtn.pack(pady=30)
 
-        self.SaveBtn = ctk.CTkButton(self, 400, 80, text="Mentés", font=self.ButtonFont, command=Save(currentSS))
+        self.SaveBtn = ctk.CTkButton(self, 400, 80, text="Mentés", font=self.ButtonFont, command= lambda: Save(currentSS))
         self.SaveBtn.pack(pady=0)
 
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
@@ -205,6 +215,7 @@ class GUI(ctk.CTk):
             for key, val in self.ActiveTeam.Players.items():
                 self.NameVariables[key] = ctk.StringVar(value=val.Name)
         except AttributeError:
+            #addteam
             self.ActiveTeam = Team(self.TeamNameVar.get(), self.FormationVar.get(), tactics=self.Tactics, players={})
             Teams[self.ActiveTeam.Name]= self.ActiveTeam
         self.ActiveTeam.Name = self.TeamNameVar.get()
@@ -218,7 +229,6 @@ class GUI(ctk.CTk):
         self.rowconfigure(2, weight=0)
         self.rowconfigure(3, weight=0)
         self.rowconfigure(4, weight=0)
-
         StarterLabelBgColor = "dark green"
         SubLabelBgColor = "green4"
         self.LabelCursor = "circle"
@@ -350,9 +360,33 @@ class GUI(ctk.CTk):
 
     def CreatePlayerBtn(self, pos):
         self.clearWindow()
+        print("szar")
+        PlayerPositions = []
+        for posititon in self.NameVariables.keys():
+            PlayerPositions.append(''.join(filter(lambda x: not x.isdigit(), posititon)))
+        PlayerPositions = list(set(PlayerPositions))
+        PlayerPositions.remove("SUB")
+        PlayerPositions.remove("RES")
+        
+        #Formatting List To Correct Order
+        tmpList = [i [::-1] for i in PlayerPositions]
+        tmpList.sort()
+        PlayerPositions = [i [::-1] for i in tmpList]
+        PlayerPositions.remove("GK")
+        PlayerPositions.insert(0, "GK")
+        PlayerPositions.remove("CAM")
+        PlayerPositions.remove("WAM")
+        PlayerPositions.insert(7, "CAM")
+        PlayerPositions.insert(8, "WAM")
+        
         self.PlayerNameVar = ctk.StringVar(value="Enter Player Name")
-        self.PlayerPosVar = ctk.StringVar(value=pos)
-
+        try:
+            self.PlayerPosVar = ctk.StringVar(value=self.ActiveTeam.Players[pos].Position)
+        except KeyError:
+            if pos in PlayerPositions:
+                self.PlayerPosVar = ctk.StringVar(value=pos)
+            else:
+                self.PlayerPosVar = ctk.StringVar(value=PlayerPositions[0])
         if self.NameVariables[pos].get() != pos:
             #Edit Player
             self.PlayerNameVar.set(self.NameVariables[pos].get())
@@ -374,11 +408,13 @@ class GUI(ctk.CTk):
   
         self.HeaderLabel = ctk.CTkLabel(self,text="Játékos Hozzáadása", font=self.HeaderFont).grid(row=0, column=0,columnspan=4, pady=(20,40))
 
+        
+
         #column0
         self.PlayerNamLabel = ctk.CTkLabel(self,text="Player Name", font=self.NormalFont).grid(row=1, column=0, sticky="w", padx=(20,0))
         self.PlayerNameEntry = ctk.CTkEntry(self, font=self.EntryFont, width=280, height=40, textvariable=self.PlayerNameVar).grid(row=2, column=0, sticky="w", padx=(20,0), pady=(5,20))
         self.PlayerPosLabel = ctk.CTkLabel(self,text="Játékos Pozíciója", font=self.NormalFont).grid(row=3, column=0, sticky="w", padx=(20,0))
-        self.PlayerPosOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=list(self.NameVariables.keys()), variable=self.PlayerPosVar).grid(row=4, column=0, sticky="w", padx=(20,0))
+        self.PlayerPosOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=PlayerPositions, variable=self.PlayerPosVar).grid(row=4, column=0, sticky="w", padx=(20,0))
         self.AddButon = ctk.CTkButton(self, width=280,height=40, text=addBtnText, font=self.ButtonFont, command= lambda: self.CreatePlayer(pos)).grid(row=5, column=0, sticky="w", padx=(20,0))
         #column1-3
     
@@ -416,11 +452,39 @@ class GUI(ctk.CTk):
         self.TeamworkLabel = ctk.CTkLabel(self.StatSetFrame, text="Csapatmunka", font=self.NormalFont).grid(row=4, column=1)
         self.GoalkeeperLabel = ctk.CTkLabel(self.StatSetFrame, text="Vetődés", font=self.NormalFont).grid(row=4, column=4)
 
+    def ChooseTeam(self, action):
+        if len(Teams) == 0:
+            tkm.showinfo(title="Nem Lehet Szerkeszteni Csapatot!",message="Nincs egy csapat se elmentve!")
+        else:
+            self.clearWindow()
+            if action == "Edit":
+                Headszoveg = "Válaszd ki a csapatot amit szerkeszteni szeretnél"
+            else:
+                Headszoveg = "Válaszd ki a csapatot amit ki szeretnél törölni"
+            
+            self.SelectedTeamVar = ctk.StringVar(value=self.ActiveTeam.Name)
+            self.HeadLabel = ctk.CTkLabel(self, text=Headszoveg, font=self.HeaderFont).pack(pady=10)
+            self.TeamChoiceOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.SelectedTeamVar)
+            self.TeamChoiceOption.pack(pady=10)
+            try:
+                self.TeamChoiceOption.set(self.ActiveTeam.Name)
+            except:
+                self.TeamChoiceOption.set(Teams[0].Name)
+            self.ChooseButton = ctk.CTkButton(self, 300, 80, text="Folytatás", font=self.ButtonFont, command=self.StartScreen).pack(pady=10)
+
+    def GetTeamByName(self, name):
+        for team in Teams.values():
+            if team.name == name:
+                return team
+
+        
+        
+
     def CreatePlayer(self, pos):
         self.CreatedPlayer.Name = self.PlayerNameVar.get()
         for key in self.CreatedPlayer.Stats.keys():
             self.CreatedPlayer.Stats[key] = int(self.StatVars[key].get())
-        self.CreatedPlayer.Position = pos
+        self.CreatedPlayer.Position = self.PlayerPosVar.get()
         self.ActiveTeam.Players[pos] = self.CreatedPlayer
         self.TeamFormationScreenBtn("edit")
         for player in self.ActiveTeam.Players.values():
@@ -428,5 +492,6 @@ class GUI(ctk.CTk):
 
 if __name__ == "__main__":
     gui = GUI()
+    print(Load(1))
     gui.mainloop()
 
