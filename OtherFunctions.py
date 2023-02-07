@@ -59,10 +59,11 @@ def Load(slot:int):
         return "Új fájl létrehozva"
     except ValueError:
         return "Load Failed"
-# def 
+
 def SimulateMatch(team1: Team, team2: Team, Chances: int=10, MatchLength: int=90):
     for chance in Chances:
         pass
+
 def SetTeamStats(team: Team):
     team.KeeperOverall = team.Players["GK"].Stats["GoalKeeping"] * team.TeamWorkOverall/len(team.Players.Stats.values())
     for key, player in team.Players.items():

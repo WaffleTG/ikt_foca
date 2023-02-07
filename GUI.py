@@ -100,11 +100,11 @@ class GUI(ctk.CTk):
         self.statLabel3 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Players), font=(self.EntryFont, 25)).grid(row=3, column=2, sticky="w")
         self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25)).grid(row=2, column=2, sticky="w")
 
-        self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=self.StartSimulation).grid(row=4, column=1, sticky="s")
+        self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=self.SimulationScreen).grid(row=4, column=1, sticky="s")
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
         self.BackBtn.grid(row=5, column=0, sticky="sw")
         
-    def StartSimulation(self):
+    def SimulationScreen(self):
         pass
 
     def EditBtnClick(self):
