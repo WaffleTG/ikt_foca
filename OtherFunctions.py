@@ -1,5 +1,5 @@
 from Classes import Team, Player
-from Data import Teams, currentSS
+from Data import Teams, currentSS, LastTeam
 
 def Save(slot:int):
     f = open(f"save{slot}.save", "w", encoding="utf-8")
@@ -27,6 +27,7 @@ def Load(slot:int):
     teams = Teams
     try:
         f = open(f"save{slot}.save", "r", encoding="utf-8")
+        LastTeam = f.readline()
         for sor in f:
             adatok = sor.strip().split(";")
             tactData = list(map(int, adatok[2].split(",")))

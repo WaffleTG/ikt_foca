@@ -1,9 +1,10 @@
 import tkinter as tk
 import tkinter.messagebox as tkm
 import customtkinter as ctk
-from Data import Teams, Formations, PosCords, LastSave, LastTeam, currentSS
+from Data import Teams, Formations, PosCords, LastTeam, currentSS
 from OtherFunctions import Save, Load
 from Classes import Player, Team
+import webbrowser
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -17,8 +18,6 @@ class GUI(ctk.CTk):
         self.HeaderFont = ('Helvetica', 30, 'bold')
         self.NormalFont = ('Helvetica', 24, 'bold')
         self.FormationFont = ('Helvetica', 16, 'bold')
-
-        self.ActiveSave = LastSave
         self.ActiveTeam = LastTeam
         self.geometry("1100x580")
         self.title("Football Simulation")
@@ -75,6 +74,12 @@ class GUI(ctk.CTk):
         self.LoadSaveBtn = ctk.CTkButton(self, 400, 80, text="Mentés betöltése", font=self.ButtonFont, command=self.ChooseSaveSlot)
         self.LoadSaveBtn.pack(pady=30)
 
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="About", font=self.ButtonFont, command=self.AboutClick)
+        self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
+
+    def AboutClick(self):
+        webbrowser.open("https://google.com")
+
     def GameVsAi(self):
         self.clearWindow()
         self.selectedVar = ctk.StringVar()
@@ -95,10 +100,13 @@ class GUI(ctk.CTk):
         self.statLabel3 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Players), font=(self.EntryFont, 25)).grid(row=3, column=2, sticky="w")
         self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25)).grid(row=2, column=2, sticky="w")
 
-        self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont).grid(row=4, column=1, sticky="s")
+        self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=self.StartSimulation).grid(row=4, column=1, sticky="s")
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
         self.BackBtn.grid(row=5, column=0, sticky="sw")
         
+    def StartSimulation(self):
+        pass
+
     def EditBtnClick(self):
         self.clearWindow()
         

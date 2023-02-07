@@ -26,6 +26,5 @@ for i in range(1, 9):
     PosCords.setdefault(f"RES{i}", (20, 20+i*35))
 for i in range(9, 11):
     PosCords.setdefault(f"RES{i}", (20, 20+i*35))
-LastTeam = None
-LastSave = None
+LastTeam = 0
 currentSS = 1
