@@ -1,5 +1,5 @@
 from Classes import Team, Player
-from Data import Teams, currentSS
+from Data import Teams, currentSS, LastTeam
 
 def Save(slot:int):
     f = open(f"save{slot}.save", "w", encoding="utf-8")
@@ -18,6 +18,7 @@ def Save(slot:int):
                 stats += f"{stat}:"
             line += f"{a.Name}:{stats}{a.Position},"
         f.write(f"{line[:-1]}\n")
+    
     f.close()
     with open(f"save{slot}.save", "r", encoding="utf-8") as f:
         print(f.readlines())
@@ -27,6 +28,7 @@ def Load(slot:int):
     teams = Teams
     try:
         f = open(f"save{slot}.save", "r", encoding="utf-8")
+        f.readline()
         for sor in f:
             adatok = sor.strip().split(";")
             tactData = list(map(int, adatok[2].split(",")))
@@ -47,6 +49,7 @@ def Load(slot:int):
                 player = Player(OnePlayerData[0], int(OnePlayerData[1]), int(OnePlayerData[2]), int(OnePlayerData[3]), int(OnePlayerData[4]), int(OnePlayerData[5]), int(OnePlayerData[6]), OnePlayerData[7])
                 players.setdefault(OnePlayerData[0], player)
             teams[adatok[0]] = Team(adatok[0], adatok[1], tact, players)
+        
         f.close()
         currentSS=slot
         return "Sikeres Betöltés"
@@ -71,4 +74,7 @@ def SetTeamStats(team: Team):
             team.MidOverall += player.Overall
         elif "W" in key or "T" in key:
             team.AttOverall += player.Overall
-       
+# def GetTeamByName(name):
+#         for team in Teams.values():
+#             if team.Name == name:
+#                 return team

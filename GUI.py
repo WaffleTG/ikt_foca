@@ -19,6 +19,7 @@ class GUI(ctk.CTk):
         self.FormationFont = ('Helvetica', 16, 'bold')
 
         self.ActiveSave = LastSave
+        print(LastTeam)
         self.ActiveTeam = LastTeam
         self.geometry("1100x580")
         self.title("Football Simulation")
@@ -101,7 +102,7 @@ class GUI(ctk.CTk):
         
     def EditBtnClick(self):
         self.clearWindow()
-        
+        print(self.ActiveTeam)
         self.addBtn = ctk.CTkButton(self, 400, 80, text="Csapat Hozzáadása", font=self.ButtonFont, command=self.addBtnClick)
         self.addBtn.pack(pady=30)
 
@@ -357,7 +358,6 @@ class GUI(ctk.CTk):
         LabelPos = (widget.winfo_rootx() - xOffest, widget.winfo_rooty() - yOffset)
         return list(PosCords.keys())[list(PosCords.values()).index(LabelPos)]
 
-
     def CreatePlayerBtn(self, pos):
         self.clearWindow()
         print("szar")
@@ -408,8 +408,6 @@ class GUI(ctk.CTk):
   
         self.HeaderLabel = ctk.CTkLabel(self,text="Játékos Hozzáadása", font=self.HeaderFont).grid(row=0, column=0,columnspan=4, pady=(20,40))
 
-        
-
         #column0
         self.PlayerNamLabel = ctk.CTkLabel(self,text="Player Name", font=self.NormalFont).grid(row=1, column=0, sticky="w", padx=(20,0))
         self.PlayerNameEntry = ctk.CTkEntry(self, font=self.EntryFont, width=280, height=40, textvariable=self.PlayerNameVar).grid(row=2, column=0, sticky="w", padx=(20,0), pady=(5,20))
@@ -457,28 +455,37 @@ class GUI(ctk.CTk):
             tkm.showinfo(title="Nem Lehet Szerkeszteni Csapatot!",message="Nincs egy csapat se elmentve!")
         else:
             self.clearWindow()
-            if action == "Edit":
-                Headszoveg = "Válaszd ki a csapatot amit szerkeszteni szeretnél"
-            else:
-                Headszoveg = "Válaszd ki a csapatot amit ki szeretnél törölni"
+            if self.ActiveTeam == None:
+                self.ActiveTeam = Teams[list(Teams.keys())[0]]
             
             self.SelectedTeamVar = ctk.StringVar(value=self.ActiveTeam.Name)
-            self.HeadLabel = ctk.CTkLabel(self, text=Headszoveg, font=self.HeaderFont).pack(pady=10)
+            self.HeadLabel = ctk.CTkLabel(self, text="Válaszd ki a csapatot amit ki szeretnél törölni", font=self.HeaderFont)
+            self.HeadLabel.pack(pady=10)
             self.TeamChoiceOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.SelectedTeamVar)
             self.TeamChoiceOption.pack(pady=10)
             try:
                 self.TeamChoiceOption.set(self.ActiveTeam.Name)
             except:
                 self.TeamChoiceOption.set(Teams[0].Name)
-            self.ChooseButton = ctk.CTkButton(self, 300, 80, text="Folytatás", font=self.ButtonFont, command=self.StartScreen).pack(pady=10)
-
-    def GetTeamByName(self, name):
-        for team in Teams.values():
-            if team.name == name:
-                return team
-
-        
-        
+            self.ChooseButton = ctk.CTkButton(self, 300, 80, text="Törlés", font=self.ButtonFont, command=lambda:self.DeleteTeam(self.TeamChoiceOption.get()))
+            self.ChooseButton.pack(pady=10)
+            if action == "edit":
+                self.ChooseButton.configure(text="Szerkesztés")
+                self.ActiveTeam = Teams[self.TeamChoiceOption.get()]
+                self.ChooseButton.configure(command=lambda: self.EditTeam(self.TeamChoiceOption.get()))
+                self.HeadLabel.configure(text="Válaszd ki a csapatot amit szerkeszteni szeretnél")
+            
+    def DeleteTeam(self, name):
+        answer = tkm.askyesno(title="Csapat Törlése", message=f"Biztos vagy benne hogy törölni szeretnék a {name} nevű csapatot?")
+        if answer:
+            self.ActiveTeam = Teams[list(Teams.keys())[list(Teams.keys()).index(name)-1]]
+            Teams.pop(name)
+            tkm.showwarning(title="Csapat Törölve!",message=f"A {name} nevű csapat törlődött ")
+            self.EditBtnClick()
+    def EditTeam(self, name):
+        self.ActiveTeam = Teams[name]
+        self.Tactics = self.ActiveTeam.Tactics
+        self.addBtnClick()
 
     def CreatePlayer(self, pos):
         self.CreatedPlayer.Name = self.PlayerNameVar.get()
@@ -494,4 +501,3 @@ if __name__ == "__main__":
     gui = GUI()
     print(Load(1))
     gui.mainloop()
-
