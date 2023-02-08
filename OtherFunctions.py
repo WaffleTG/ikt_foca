@@ -28,7 +28,7 @@ def Load(slot:int):
     teams = Teams
     try:
         f = open(f"save{slot}.save", "r", encoding="utf-8")
-        f.readline()
+        # f.readline()
         for sor in f:
             adatok = sor.strip().split(";")
             tactData = list(map(int, adatok[2].split(",")))

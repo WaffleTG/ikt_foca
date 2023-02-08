@@ -62,9 +62,11 @@ class GUI(ctk.CTk):
 
     def StartScreen(self):
         self.clearWindow()
-        self.PlayBtn = ctk.CTkButton(self, 400, 80, text="Játék Számítógép ellen", font=self.ButtonFont, command=self.GameVsAi)
+        self.PlayBtn = ctk.CTkButton(self, 400, 80, text="Játék Számítógép ellen", font=self.ButtonFont, command=self.GameVsAi, state="disabled")
         self.PlayBtn.pack(pady=30)
-        
+        if len(Teams)>0:
+            self.PlayBtn.configure(state="normal")
+
         self.EditBtn = ctk.CTkButton(self, 400, 80, text="Csapatok szerkesztése", font=self.ButtonFont, command=self.EditBtnClick)
         self.EditBtn.pack(pady=0)
         
@@ -78,32 +80,48 @@ class GUI(ctk.CTk):
         self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
 
     def AboutClick(self):
-        webbrowser.open("https://google.com")
+        webbrowser.open("https://google.com/")
 
     def GameVsAi(self):
-        self.clearWindow()
-        self.selectedVar = ctk.StringVar()
+        if len(Teams) == 0:
+            tkm.showinfo(title="Nem Lehet Játékot Indítani!",message="Nincs egy csapat se elmentve!")
+        else:
+            self.clearWindow()
+            self.selectedVar = ctk.StringVar()
 
-        self.columnconfigure((0,1,2), weight=1)
-        self.rowconfigure((0,1,2,3,4,5), weight=1)
+            self.columnconfigure((0,1,2), weight=1)
+            self.rowconfigure((0,1,2,3,4,5), weight=1)
 
-        self.teamLabel = ctk.CTkLabel(self, text="Válassz csapatot!", font=(self.EntryFont, 40)).grid(row=0, column=1, sticky="n")
+            self.teamLabel = ctk.CTkLabel(self, text="Válassz csapatot!", font=(self.EntryFont, 40)).grid(row=0, column=1, sticky="n")
 
-        self.teamDrpdwn =  ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.selectedVar)
-        self.teamDrpdwn.set(list(Teams.keys())[0])
-        self.teamDrpdwn.grid(row=1, column=1, sticky="n")
+            self.teamDrpdwn =  ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.selectedVar)
+            self.teamDrpdwn.set(list(Teams.keys())[0])
+            self.teamDrpdwn.grid(row=1, column=1, sticky="n")
 
-        self.statLabel1 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Formation), font=(self.EntryFont, 25)).grid(row=3, column=0, sticky="e")
-        self.statNameLabel1 = ctk.CTkLabel(self, text="Felállás", font=(self.EntryFont, 25)).grid(row=2, column=0, sticky="e")
-        self.statLabel2 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Tactics), font=(self.EntryFont, 25)).grid(row=3, column=1)
-        self.statNameLabel1 = ctk.CTkLabel(self, text="Taktika", font=(self.EntryFont, 25)).grid(row=2, column=1)
-        self.statLabel3 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Players), font=(self.EntryFont, 25)).grid(row=3, column=2, sticky="w")
-        self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25)).grid(row=2, column=2, sticky="w")
+            self.statLabel1 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Formation), font=(self.EntryFont, 25), wraplength=250).grid(row=3, column=0, sticky="e")
+            self.statNameLabel1 = ctk.CTkLabel(self, text="Felállás", font=(self.EntryFont, 25), wraplength=250).grid(row=2, column=0, sticky="e")
+            
+            tacticsString = ""
+            for key, value in Teams[self.selectedVar.get()].Tactics.items():
+                tacticsString+=f"{key}: {value}\n"
 
-        self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=self.SimulationScreen).grid(row=4, column=1, sticky="s")
-        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
-        self.BackBtn.grid(row=5, column=0, sticky="sw")
-        
+            self.statLabel2 = ctk.CTkLabel(self, text=tacticsString, font=(self.EntryFont, 25)).grid(row=3, column=1)
+            self.statNameLabel1 = ctk.CTkLabel(self, text="Taktika", font=(self.EntryFont, 25)).grid(row=2, column=1)
+            
+            playersString = ""
+            for key, value in Teams[self.selectedVar.get()].Players.items():
+                playersString+=key
+                for key1, value1 in value.Stats.items():
+                    playersString+=f"{key1}: {value1}"
+
+            self.statLabel3 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Players), font=(self.EntryFont, 25), wraplength=250).grid(row=3, column=2, sticky="w")
+            self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25)).grid(row=2, column=2, sticky="w")
+
+            self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=self.SimulationScreen).grid(row=4, column=1, sticky="s")
+            
+            self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
+            self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
+            
     def SimulationScreen(self):
         pass
 
@@ -321,6 +339,7 @@ class GUI(ctk.CTk):
                     self.FormationFrame.bind_class('Label', '<Button-1>', lambda event, a=event.widget:self.PlayerSwitchByName(event=event, widget1=a), add=False)
         except AttributeError:
             pass
+
     def PlayerEditClick(self, event):
         try:
             if event.widget.cget('cursor') == self.LabelCursor:
@@ -367,7 +386,6 @@ class GUI(ctk.CTk):
 
     def CreatePlayerBtn(self, pos):
         self.clearWindow()
-        print("szar")
         PlayerPositions = []
         for posititon in self.NameVariables.keys():
             PlayerPositions.append(''.join(filter(lambda x: not x.isdigit(), posititon)))
@@ -489,6 +507,7 @@ class GUI(ctk.CTk):
             Teams.pop(name)
             tkm.showwarning(title="Csapat Törölve!",message=f"A {name} nevű csapat törlődött ")
             self.EditBtnClick()
+
     def EditTeam(self, name):
         self.ActiveTeam = Teams[name]
         self.Tactics = self.ActiveTeam.Tactics
