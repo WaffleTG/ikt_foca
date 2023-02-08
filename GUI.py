@@ -110,7 +110,7 @@ class GUI(ctk.CTk):
     def EditBtnClick(self):
         self.clearWindow()
         print(self.ActiveTeam)
-        self.addBtn = ctk.CTkButton(self, 400, 80, text="Csapat Hozzáadása", font=self.ButtonFont, command=self.addBtnClick)
+        self.addBtn = ctk.CTkButton(self, 400, 80, text="Csapat Hozzáadása", font=self.ButtonFont, command=lambda: self.addBtnClick("add"))
         self.addBtn.pack(pady=30)
 
         self.EditBtn = ctk.CTkButton(self, 400, 80, text="Csapat Szerkesztése", font=self.ButtonFont, command=lambda: self.ChooseTeam("edit"))
@@ -125,7 +125,7 @@ class GUI(ctk.CTk):
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
         self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
 
-    def addBtnClick(self):
+    def addBtnClick(self, mode):
         self.clearWindow()
         self.TacticsVars = {
             "Defwidth": ctk.IntVar(),
@@ -139,13 +139,18 @@ class GUI(ctk.CTk):
         }
         self.TeamNameVar = ctk.StringVar()
         self.FormationVar = ctk.StringVar()
-        if hasattr(self, "Tactics"):
-            for key, val in self.Tactics.items():
-                self.TacticsVars[key].set(val) 
+        if mode == "add":
+            tacs = {}
+            for key in self.TacticsVars.keys():
+                tacs.setdefault(key, 50)
+            self.ActiveTeam = Team("", "", tacs, {})
+        if mode == "edit":
+            for key, val in self.ActiveTeam.Tactics.items():
+                self.TacticsVars[key].set(val)
             self.TeamNameVar.set(self.ActiveTeam.Name)
             print("EditMode")
-        else:
-            print("AddMode")
+        
+            
         
 
         self.columnconfigure(0, weight=1)
@@ -214,18 +219,24 @@ class GUI(ctk.CTk):
     def TeamFormationScreenBtn(self, mode):
         self.clearWindow()
         self.NameVariables = {}
-        self.Tactics = {}
+        if mode == "edit":
+            pass
         for key, val in self.TacticsVars.items():
-            self.Tactics.setdefault(key, val.get())
+            self.ActiveTeam.Tactics[key] = val
         for pos in PosCords.keys():
             self.NameVariables.setdefault(pos, ctk.StringVar(value=pos))
         try:
             for key, val in self.ActiveTeam.Players.items():
                 self.NameVariables[key] = ctk.StringVar(value=val.Name)
         except AttributeError:
-            #addteam
-            self.ActiveTeam = Team(self.TeamNameVar.get(), self.FormationVar.get(), tactics=self.Tactics, players={})
-            Teams[self.ActiveTeam.Name]= self.ActiveTeam
+            pass
+        if mode == "add":
+            Teams.setdefault(self.ActiveTeam.Name, self.ActiveTeam)
+            # #addteam
+            # self.ActiveTeam = Team(self.TeamNameVar.get(), self.FormationVar.get(), tactics=self.Tactics, players={})
+            # Teams[self.ActiveTeam.Name]= self.ActiveTeam
+        # if mode == "edit":
+
         self.ActiveTeam.Name = self.TeamNameVar.get()
         self.ActiveTeam.Formation = self.FormationVar.get()
 
@@ -243,7 +254,7 @@ class GUI(ctk.CTk):
 
         self.FormationFrame = ctk.CTkFrame(self, width=700,height=580, fg_color="green")
         self.FormationFrame.grid(row=0, column=2,rowspan=5, sticky="e")
-        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.addBtnClick).grid(row=3, column=0, sticky="nw", padx=20, pady=(80,0))
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=lambda: self.addBtnClick("edit")).grid(row=3, column=0, sticky="nw", padx=20, pady=(80,0))
         self.GKLabel = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["GK"], font=self.FormationFont, fg_color=StarterLabelBgColor, bg_color=StarterLabelBgColor, cursor=self.LabelCursor)
         self.GKLabel.place(x=PosCords["GK"][0], y=PosCords["GK"][1])
         self.CB1Label = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["CB1"], font=self.FormationFont, fg_color=StarterLabelBgColor, bg_color=StarterLabelBgColor, cursor=self.LabelCursor).place(x=PosCords["CB1"][0],y=PosCords["CB1"][1])
@@ -464,16 +475,18 @@ class GUI(ctk.CTk):
             self.clearWindow()
             if self.ActiveTeam == None:
                 self.ActiveTeam = Teams[list(Teams.keys())[0]]
-            
+            try:
+                str(self.ActiveTeam.Name)
+            except:
+                self.ActiveTeam = Teams[list(Teams.keys())[0]]
             self.SelectedTeamVar = ctk.StringVar(value=self.ActiveTeam.Name)
             self.HeadLabel = ctk.CTkLabel(self, text="Válaszd ki a csapatot amit ki szeretnél törölni", font=self.HeaderFont)
             self.HeadLabel.pack(pady=10)
             self.TeamChoiceOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.SelectedTeamVar)
             self.TeamChoiceOption.pack(pady=10)
-            try:
-                self.TeamChoiceOption.set(self.ActiveTeam.Name)
-            except:
-                self.TeamChoiceOption.set(Teams[0].Name)
+            self.TeamChoiceOption.set(self.ActiveTeam.Name)
+            
+                
             self.ChooseButton = ctk.CTkButton(self, 300, 80, text="Törlés", font=self.ButtonFont, command=lambda:self.DeleteTeam(self.TeamChoiceOption.get()))
             self.ChooseButton.pack(pady=10)
             if action == "edit":
@@ -491,8 +504,7 @@ class GUI(ctk.CTk):
             self.EditBtnClick()
     def EditTeam(self, name):
         self.ActiveTeam = Teams[name]
-        self.Tactics = self.ActiveTeam.Tactics
-        self.addBtnClick()
+        self.addBtnClick("edit")
 
     def CreatePlayer(self, pos):
         self.CreatedPlayer.Name = self.PlayerNameVar.get()
