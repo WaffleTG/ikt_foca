@@ -17,7 +17,6 @@ class Player:
         self.Position = pos
         self.Overall = int(sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)
         
-        
 
 class Team:
     def __init__(self, name: str, formation: str, tactics: dict,players: dict) -> None:

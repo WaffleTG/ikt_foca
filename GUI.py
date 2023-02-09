@@ -62,7 +62,7 @@ class GUI(ctk.CTk):
 
     def StartScreen(self):
         self.clearWindow()
-        self.PlayBtn = ctk.CTkButton(self, 400, 80, text="Játék Számítógép ellen", font=self.ButtonFont, command=self.GameVsAi, state="disabled")
+        self.PlayBtn = ctk.CTkButton(self, 400, 80, text="Játék Számítógép ellen", font=self.ButtonFont, command=self.GameVsAi)
         self.PlayBtn.pack(pady=30)
         if len(Teams)>0:
             self.PlayBtn.configure(state="normal")
@@ -255,7 +255,11 @@ class GUI(ctk.CTk):
         except AttributeError:
             pass
         if mode == "add":
-            Teams.setdefault(self.ActiveTeam.Name, self.ActiveTeam)
+            if self.ActiveTeam != "":
+                Teams.setdefault(self.ActiveTeam.Name, self.ActiveTeam)
+            else:
+                self.ActiveTeam = Teams[list(self.ActiveTeam.keys()).index(self.ActiveTeam.Name)-1]
+                print(self.ActiveTeam.Name)
             # #addteam
             # self.ActiveTeam = Team(self.TeamNameVar.get(), self.FormationVar.get(), tactics=self.Tactics, players={})
             # Teams[self.ActiveTeam.Name]= self.ActiveTeam
