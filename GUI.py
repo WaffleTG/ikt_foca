@@ -173,10 +173,12 @@ class GUI(ctk.CTk):
             self.ActiveTeam = Team("", "", tacs, {})
         if mode == "edit":
             for key, val in self.ActiveTeam.Tactics.items():
+                print(key, val)
                 self.TacticsVars[key].set(val)
             self.TeamNameVar.set(self.ActiveTeam.Name)
             print("EditMode")
-        
+
+    
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
@@ -239,6 +241,7 @@ class GUI(ctk.CTk):
         self.ShootRateSlider = ctk.CTkSlider(self, width=200, height=26,from_=0, to=100, number_of_steps=100, variable=self.TacticsVars["Shootrate"]).grid(row=10, column=4, sticky="w", padx=(0,40))
 
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.EditBtnClick).grid(row=11, column=0, sticky="w", pady=(120,0), padx=xPadding)
+        self.SaveTeam = ctk.CTkButton(self, 120, 40, text="Taktika Mentése", font=self.ButtonFont, command=self.SaveActiveTeam).grid(row=11, column=4, sticky="w", pady=(120,0), padx=xPadding)
 
     def TeamFormationScreenBtn(self, mode):
         self.clearWindow()
@@ -246,7 +249,7 @@ class GUI(ctk.CTk):
         if mode == "edit":
             pass
         for key, val in self.TacticsVars.items():
-            self.ActiveTeam.Tactics[key] = val
+            self.ActiveTeam.Tactics[key] = val.get()
         for pos in PosCords.keys():
             self.NameVariables.setdefault(pos, ctk.StringVar(value=pos))
         try:
@@ -256,6 +259,7 @@ class GUI(ctk.CTk):
             pass
         if mode == "add":
             if self.ActiveTeam != "":
+                self.ActiveTeam.Name = self.TeamNameVar.get()
                 Teams.setdefault(self.ActiveTeam.Name, self.ActiveTeam)
             else:
                 self.ActiveTeam = Teams[list(self.ActiveTeam.keys()).index(self.ActiveTeam.Name)-1]
@@ -505,22 +509,28 @@ class GUI(ctk.CTk):
             if self.ActiveTeam == None:
                 self.ActiveTeam = Teams[list(Teams.keys())[0]]
             try:
-                str(self.ActiveTeam.Name)
+                if self.ActiveTeam.Name not in Teams.keys():
+                    self.ActiveTeam = Teams[list(Teams.keys())[0]]
             except:
                 self.ActiveTeam = Teams[list(Teams.keys())[0]]
             self.SelectedTeamVar = ctk.StringVar(value=self.ActiveTeam.Name)
             self.HeadLabel = ctk.CTkLabel(self, text="Válaszd ki a csapatot amit ki szeretnél törölni", font=self.HeaderFont)
             self.HeadLabel.pack(pady=10)
+            print(Teams.keys())
             self.TeamChoiceOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.SelectedTeamVar)
             self.TeamChoiceOption.pack(pady=10)
-            self.TeamChoiceOption.set(self.ActiveTeam.Name)
+            print(self.ActiveTeam.Name)
+            self.SelectedTeamVar.set(self.ActiveTeam.Name)
             
                 
             self.ChooseButton = ctk.CTkButton(self, 300, 80, text="Törlés", font=self.ButtonFont, command=lambda:self.DeleteTeam(self.TeamChoiceOption.get()))
             self.ChooseButton.pack(pady=10)
             if action == "edit":
                 self.ChooseButton.configure(text="Szerkesztés")
-                self.ActiveTeam = Teams[self.TeamChoiceOption.get()]
+                try:
+                    self.ActiveTeam = Teams[self.TeamChoiceOption.get()]
+                except KeyError:
+                    self.ActiveTeam = Teams[list(Teams.keys())[0]]
                 self.ChooseButton.configure(command=lambda: self.EditTeam(self.TeamChoiceOption.get()))
                 self.HeadLabel.configure(text="Válaszd ki a csapatot amit szerkeszteni szeretnél")
             
@@ -536,6 +546,18 @@ class GUI(ctk.CTk):
         self.ActiveTeam = Teams[name]
         self.addBtnClick("edit")
 
+    def SaveActiveTeam(self):
+        if self.TeamNameVar != "" and self.ActiveTeam.Name != self.TeamNameVar.get():
+            try:
+                Teams.pop(self.ActiveTeam.Name)
+            except KeyError:
+                pass
+            self.ActiveTeam.Name = self.TeamNameVar.get()
+            Teams.setdefault(self.ActiveTeam.Name, self.ActiveTeam)
+        self.ActiveTeam.Formation = self.FormationVar.get()
+        for key,val in self.TacticsVars.items():
+            self.ActiveTeam.Tactics[key] = val.get()
+        
     def CreatePlayer(self, pos):
         self.CreatedPlayer.Name = self.PlayerNameVar.get()
         for key in self.CreatedPlayer.Stats.keys():

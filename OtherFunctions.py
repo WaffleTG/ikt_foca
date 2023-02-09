@@ -17,6 +17,8 @@ def Save(slot:int):
             for stat in a.Stats.values():
                 stats += f"{stat}:"
             line += f"{a.Name}:{stats}{a.Position},"
+        if len(team.Players) == 0:
+            line += ";"
         f.write(f"{line[:-1]}\n")
     
     f.close()
@@ -46,8 +48,11 @@ def Load(slot:int):
             players = {}
             for data in playerData:
                 OnePlayerData = data.split(":")
-                player = Player(OnePlayerData[0], int(OnePlayerData[1]), int(OnePlayerData[2]), int(OnePlayerData[3]), int(OnePlayerData[4]), int(OnePlayerData[5]), int(OnePlayerData[6]), OnePlayerData[7])
-                players.setdefault(OnePlayerData[0], player)
+                try:
+                    player = Player(OnePlayerData[0], int(OnePlayerData[1]), int(OnePlayerData[2]), int(OnePlayerData[3]), int(OnePlayerData[4]), int(OnePlayerData[5]), int(OnePlayerData[6]), OnePlayerData[7])
+                    players.setdefault(OnePlayerData[0], player)
+                except IndexError:
+                    players = {}
             teams[adatok[0]] = Team(adatok[0], adatok[1], tact, players)
         
         f.close()
