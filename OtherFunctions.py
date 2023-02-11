@@ -50,7 +50,7 @@ def Load(slot:int):
                 OnePlayerData = data.split(":")
                 try:
                     player = Player(OnePlayerData[0], int(OnePlayerData[1]), int(OnePlayerData[2]), int(OnePlayerData[3]), int(OnePlayerData[4]), int(OnePlayerData[5]), int(OnePlayerData[6]), OnePlayerData[7])
-                    players.setdefault(OnePlayerData[0], player)
+                    players.setdefault(OnePlayerData[7], player)
                 except IndexError:
                     players = {}
             teams[adatok[0]] = Team(adatok[0], adatok[1], tact, players)
@@ -71,15 +71,22 @@ def SimulateMatch(team1: Team, team2: Team, Chances: int=10, MatchLength: int=90
     for chance in Chances:
         pass
 
-def SetTeamStats(team: Team):
-    team.KeeperOverall = team.Players["GK"].Stats["GoalKeeping"] * team.TeamWorkOverall/len(team.Players.Stats.values())
+def SetTeamStats(team: Team, debug=False):
+    try:
+        team.KeeperOverall = team.Players["GK"].Stats["GoalKeeping"]/len(team.Players["GK"].Stats.values()) * team.getTeamWork() / 50
+    except KeyError:
+        #Team Doesn't have a keeper (probably need a messagebox)
+        pass
     for key, player in team.Players.items():
         if "B" in key:
-            team.DefOverall += player.Overall
+            team.DefOverall += player.Overall*team.TeamWorkOverall/50/4
         elif "M" in key:
-            team.MidOverall += player.Overall
+            team.MidOverall += player.Overall*team.TeamWorkOverall/50/3
         elif "W" in key or "T" in key:
-            team.AttOverall += player.Overall
+            team.AttOverall += player.Overall*team.TeamWorkOverall/50/3
+        
+    if debug:
+        print(f"Teamname: {team.Name} Attack Overall: {team.AttOverall} Midfield Overall: {team.MidOverall} Defense Overall: {team.DefOverall} Keeper Overall: {team.KeeperOverall} Teamwork Overall: {team.getTeamWork()}")
 # def GetTeamByName(name):
 #         for team in Teams.values():
 #             if team.Name == name:

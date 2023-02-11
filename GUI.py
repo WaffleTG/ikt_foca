@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.messagebox as tkm
 import customtkinter as ctk
 from Data import Teams, Formations, PosCords, LastTeam, currentSS
-from OtherFunctions import Save, Load
+from OtherFunctions import Save, Load, SetTeamStats
 from Classes import Player, Team
 import webbrowser
 
@@ -164,7 +164,7 @@ class GUI(ctk.CTk):
             "Attackspeed": ctk.IntVar(),
             "Shootrate": ctk.IntVar()
         }
-        self.TeamNameVar = ctk.StringVar()
+        self.TeamNameVar = ctk.StringVar(value=f"New Team({self.GetNewTeamNum()})")
         self.FormationVar = ctk.StringVar()
         if mode == "add":
             tacs = {}
@@ -258,12 +258,13 @@ class GUI(ctk.CTk):
         except AttributeError:
             pass
         if mode == "add":
-            if self.ActiveTeam != "":
+            if self.ActiveTeam.Name.strip() != "":
                 self.ActiveTeam.Name = self.TeamNameVar.get()
-                Teams.setdefault(self.ActiveTeam.Name, self.ActiveTeam)
+                
             else:
-                self.ActiveTeam = Teams[list(self.ActiveTeam.keys()).index(self.ActiveTeam.Name)-1]
+                self.ActiveTeam.Name = f"New Team({self.GetNewTeamNum()})"
                 print(self.ActiveTeam.Name)
+            Teams.setdefault(self.ActiveTeam.Name, self.ActiveTeam)
             # #addteam
             # self.ActiveTeam = Team(self.TeamNameVar.get(), self.FormationVar.get(), tactics=self.Tactics, players={})
             # Teams[self.ActiveTeam.Name]= self.ActiveTeam
@@ -533,7 +534,7 @@ class GUI(ctk.CTk):
                     self.ActiveTeam = Teams[list(Teams.keys())[0]]
                 self.ChooseButton.configure(command=lambda: self.EditTeam(self.TeamChoiceOption.get()))
                 self.HeadLabel.configure(text="Válaszd ki a csapatot amit szerkeszteni szeretnél")
-            
+        SetTeamStats(self.ActiveTeam, True)
     def DeleteTeam(self, name):
         answer = tkm.askyesno(title="Csapat Törlése", message=f"Biztos vagy benne hogy törölni szeretnék a {name} nevű csapatot?")
         if answer:
@@ -568,6 +569,12 @@ class GUI(ctk.CTk):
         for player in self.ActiveTeam.Players.values():
             print(player.Name)
 
+    def GetNewTeamNum(self):
+        num = 0
+        for team in Teams.values():
+            if "New Team(" in team.Name and int(team.Name[-2]) > num:
+                num = int(team.Name[-2])
+        return num + 1
 if __name__ == "__main__":
     gui = GUI()
     print(Load(1))

@@ -15,8 +15,8 @@ class Player:
         # self.Passing = passing
         # self.Teamwork = teamwork
         self.Position = pos
-        self.Overall = int(sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)
-        
+        self.Overall = int((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/4.5)
+        print(self.Overall)
 
 class Team:
     def __init__(self, name: str, formation: str, tactics: dict,players: dict) -> None:
@@ -32,10 +32,15 @@ class Team:
         self.KeeperOverall = 0
         
     def getTeamWork(self):
-        for player in self.Players.values():
-            self.TeamWorkOverall += player.Teamwork
+        if len(self.Players) > 0:
+            ovr = 0
+            for player in self.Players.values():
+                ovr += player.Stats["Teamwork"]
+            self.TeamWorkOverall = ovr/len(self.Players)
+            
+        else:
+            self.TeamWorkOverall = 0
         return self.TeamWorkOverall
-        
     def getOverall(self):
         pass
 
