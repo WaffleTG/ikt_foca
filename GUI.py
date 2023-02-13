@@ -1,9 +1,11 @@
+import random
 import tkinter as tk
+from time import sleep
 import tkinter.messagebox as tkm
 import customtkinter as ctk
 from Data import Teams, Formations, PosCords, LastTeam, currentSS
 from OtherFunctions import Save, Load, SetTeamStats
-from Classes import Player, Team
+from Classes import Player, Team, Chance
 import webbrowser
 
 ctk.set_appearance_mode("dark")
@@ -18,6 +20,9 @@ class GUI(ctk.CTk):
         self.HeaderFont = ('Helvetica', 30, 'bold')
         self.NormalFont = ('Helvetica', 24, 'bold')
         self.FormationFont = ('Helvetica', 16, 'bold')
+
+        self.SimNumFont = ('Helvetica', 100, 'bold')
+        self.SimTeamFont = ('Helvetica', 36, 'bold')
         self.ActiveTeam = LastTeam
         self.geometry("1100x580")
         self.title("Football Simulation")
@@ -125,14 +130,54 @@ class GUI(ctk.CTk):
             self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25), wraplength=200).grid(row=2, column=2, sticky="e")
             
             #meccs kezdése gomb (még nem csinál semmit)
-            self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=self.SimulationScreen).grid(row=5, column=1, sticky="s")
+            self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=lambda: self.SimulationScreen(Teams[self.selectedVar.get()],Teams[self.selectedVar.get()])).grid(row=5, column=1, sticky="s")
             
             #vissza gomb
-            self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
-            self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
+            # self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
+            # self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
             
-    def SimulationScreen(self):
-        pass
+    def SimulationScreen(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
+        self.clearWindow()
+        self.speedVar = ctk.IntVar(value=1)
+        self.timeVar = ctk.IntVar(value=0)
+        self.columnconfigure((0,1,2,3,4), weight=1)
+        self.rowconfigure((0,1,3,4,5,6), weight=0)
+        self.rowconfigure(2, weight=0)
+        self.Score = "0  -  0"
+        #első sor
+        self.TimeLabel = ctk.CTkLabel(self, textvariable = self.timeVar, font=self.SimNumFont).grid(column=1,columnspan=3,row=0)
+        self.StatButton = ctk.CTkButton(self, 200,40, text="Statisztika", font=self.EntryFont).grid(column=4, row=0)
+        
+        #második sor
+        self.Team1Label = ctk.CTkLabel(self, text=team1.Name, font=self.SimTeamFont).grid(column=0 ,row=1, sticky="e")
+        self.ScoreLabel = ctk.CTkLabel(self, text=self.Score, font=self.SimNumFont).grid(column=1,columnspan=3,row=1)
+        self.Team2Label = ctk.CTkLabel(self, text=team2.Name, font=self.SimTeamFont).grid(column=4 ,row=1, sticky="w")
+        
+        #harmadik sor
+        self.CommentaryBox = ctk.CTkFrame(self, width=900, height=150).grid(column=0,columnspan=5 ,row=2)
+
+        #Simulation
+        Chances = {}
+        for i in range(1, ChanceCount+2):
+            AttTeam = random.randint(0, team1.MidOverall + team2.MidOverall)
+            if AttTeam < team1.MidOverall /100 * 95:
+                AttTeam = team1
+                DefTeam = team2
+            elif AttTeam < team2.MidOverall / 100 * 95:
+                AttTeam = team2
+                DefTeam = team1
+            else:
+                continue
+            ChanceTime = (random.randint((i-1) * (MatchLength/ChanceCount) + 1 ,((i) * (MatchLength/ChanceCount))))
+
+            GoalChance = random.randint(0, AttTeam.AttOverall /100 * 95 + DefTeam.DefOverall)
+            if GoalChance < DefTeam.DefOverall:
+                IsGoal = True
+            else:
+                IsGoal = False
+            
+
+            Chances.setdefault(ChanceTime, Chance(ChanceTime, AttTeam), IsGoal)
 
     def EditBtnClick(self):
         self.clearWindow()
@@ -535,6 +580,7 @@ class GUI(ctk.CTk):
                 self.ChooseButton.configure(command=lambda: self.EditTeam(self.TeamChoiceOption.get()))
                 self.HeadLabel.configure(text="Válaszd ki a csapatot amit szerkeszteni szeretnél")
         SetTeamStats(self.ActiveTeam, True)
+    
     def DeleteTeam(self, name):
         answer = tkm.askyesno(title="Csapat Törlése", message=f"Biztos vagy benne hogy törölni szeretnék a {name} nevű csapatot?")
         if answer:

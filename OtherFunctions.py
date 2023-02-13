@@ -73,7 +73,7 @@ def SimulateMatch(team1: Team, team2: Team, Chances: int=10, MatchLength: int=90
 
 def SetTeamStats(team: Team, debug=False):
     try:
-        team.KeeperOverall = team.Players["GK"].Stats["GoalKeeping"]/len(team.Players["GK"].Stats.values()) * team.getTeamWork() / 50
+        team.KeeperOverall = team.Players["GK"].Stats["GoalKeeping"] * team.getTeamWork() / 99
     except KeyError:
         #Team Doesn't have a keeper (probably need a messagebox)
         pass
