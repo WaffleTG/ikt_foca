@@ -44,6 +44,28 @@ class Team:
     def getOverall(self):
         pass
 
+    def SetStats(self, debug=False):
+        self.DefOverall = 0
+        self.KeeperOverall = 0
+        self.AttOverall = 0
+        self.MidOverall = 0
+        try:
+            self.KeeperOverall = self.Players["GK"].Stats["GoalKeeping"] * self.getTeamWork() / 99
+        except KeyError:
+            #Team Doesn't have a keeper (probably need a messagebox)
+            pass
+        for key, player in self.Players.items():
+            if "B" in key:
+                self.DefOverall += player.Overall*self.TeamWorkOverall/50/4
+            elif "M" in key:
+                self.MidOverall += player.Overall*self.TeamWorkOverall/50/3
+            elif "W" in key or "T" in key:
+                self.AttOverall += player.Overall*self.TeamWorkOverall/50/3
+        if debug:
+            print(f"AttOveral{self.AttOverall}")
+        if debug:
+            print(f"Teamname: {self.Name} Attack Overall: {self.AttOverall} Midfield Overall: {self.MidOverall} Defense Overall: {self.DefOverall} Keeper Overall: {self.KeeperOverall} Teamwork Overall: {self.getTeamWork()}")
+
 class Chance:
     def __init__(self, time, team: int, goal=False) -> None:
         self.Time = time

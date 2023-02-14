@@ -4,7 +4,7 @@ from time import sleep
 import tkinter.messagebox as tkm
 import customtkinter as ctk
 from Data import Teams, Formations, PosCords, LastTeam, currentSS
-from OtherFunctions import Save, Load, SetTeamStats
+from OtherFunctions import Save, Load
 from Classes import Player, Team, Chance
 import webbrowser
 
@@ -130,13 +130,15 @@ class GUI(ctk.CTk):
             self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25), wraplength=200).grid(row=2, column=2, sticky="e")
             
             #meccs kezdése gomb (még nem csinál semmit)
-            self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=lambda: self.SimulationScreen(Teams[self.selectedVar.get()],Teams[self.selectedVar.get()])).grid(row=5, column=1, sticky="s")
+            self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=lambda: self.SimulationScreen(Teams["Csapat1"],Teams["Csapat2"])).grid(row=5, column=1, sticky="s")
             
             #vissza gomb
             # self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
             # self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
             
     def SimulationScreen(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
+        team1.SetStats()
+        team2.SetStats()
         self.clearWindow()
         self.speedVar = ctk.IntVar(value=1)
         self.timeVar = ctk.IntVar(value=0)
@@ -155,33 +157,53 @@ class GUI(ctk.CTk):
         
         #harmadik sor
         self.CommentaryBox = ctk.CTkFrame(self, width=900, height=150).grid(column=0,columnspan=5 ,row=2)
-
+        self.SimTest(team1, team2, ChanceCount, MatchLength, 1000)
         #Simulation
+    def GenerateSimulation(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
+        team1.SetStats()
+        team2.SetStats()
         Chances = {}
-        for i in range(1, ChanceCount+2):
-            AttTeam = random.randint(0, team1.MidOverall + team2.MidOverall)
+        for i in range(1, int(ChanceCount)+2):
+            AttTeam = random.randint(0, int(team1.MidOverall + team2.MidOverall))
+            # print(AttTeam, team1.MidOverall /100 * 95, team1.MidOverall/100*95)
             if AttTeam < team1.MidOverall /100 * 95:
                 AttTeam = team1
                 DefTeam = team2
-            elif AttTeam < team2.MidOverall / 100 * 95:
+            elif AttTeam < (team1.MidOverall + team2.MidOverall) / 100 * 95:
                 AttTeam = team2
                 DefTeam = team1
             else:
                 continue
-            ChanceTime = (random.randint((i-1) * (MatchLength/ChanceCount) + 1 ,((i) * (MatchLength/ChanceCount))))
+            ChanceTime = random.randint((i-1) * int(MatchLength/ChanceCount) + 1 ,((i) * int(MatchLength/ChanceCount)))
 
-            GoalChance = random.randint(0, AttTeam.AttOverall /100 * 95 + DefTeam.DefOverall)
+            GoalChance = random.randint(0, int(AttTeam.AttOverall /100 * 95) + int(DefTeam.DefOverall))
             if GoalChance < DefTeam.DefOverall:
                 IsGoal = True
             else:
                 IsGoal = False
+            Chances.setdefault(ChanceTime, Chance(ChanceTime, AttTeam, IsGoal))
+        golok = [0,0]
+        for x in Chances.values():
+            if x.IsGoal:
+                if x.Team.Name == team1.Name:
+                    golok[0] += 1
+                else:
+                    golok[1] += 1
+        return Chances, golok
+        
+    def SimTest(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90, simAmount=1000):
+        ossz1Golok = 0 
+        ossz2Golok = 0
+        for i in range(0, simAmount):
+            golok = self.GenerateSimulation(team1, team2, ChanceCount, MatchLength)[1]
             
+            ossz1Golok += golok[0]
+            ossz2Golok += golok[1]
 
-            Chances.setdefault(ChanceTime, Chance(ChanceTime, AttTeam), IsGoal)
-
+        print(f"{ossz1Golok/simAmount} - {ossz2Golok/simAmount}")
     def EditBtnClick(self):
         self.clearWindow()
-        print(self.ActiveTeam)
+        print(self.ActiveTeam.Name)
         self.addBtn = ctk.CTkButton(self, 400, 80, text="Csapat Hozzáadása", font=self.ButtonFont, command=lambda: self.addBtnClick("add"))
         self.addBtn.pack(pady=30)
 
@@ -223,7 +245,6 @@ class GUI(ctk.CTk):
             self.TeamNameVar.set(self.ActiveTeam.Name)
             print("EditMode")
 
-    
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
@@ -245,7 +266,7 @@ class GUI(ctk.CTk):
             print(self.ActiveTeam.Formation)
         else:
             self.FormationOption.set("4-4-2")
-        self.AddPlayerButton = ctk.CTkButton(self,text="Csapat Szerkesztése",width=280, height=40, font=self.EntryFont, command=lambda:[self.TeamFormationScreenBtn("add")]).grid(row=5, column=0,rowspan=2, padx=(xPadding,0), sticky="w", pady=(20,0))
+        self.AddPlayerButton = ctk.CTkButton(self,text="Csapat Szerkesztése",width=280, height=40, font=self.EntryFont, command=lambda:[self.TeamFormationScreenBtn(mode)]).grid(row=5, column=0,rowspan=2, padx=(xPadding,0), sticky="w", pady=(20,0))
 
         self.TacticsLabel = ctk.CTkLabel(self, text="Taktika", font=self.HeaderFont).grid(row=1, column=1, columnspan=4)
         
@@ -298,12 +319,13 @@ class GUI(ctk.CTk):
         for pos in PosCords.keys():
             self.NameVariables.setdefault(pos, ctk.StringVar(value=pos))
         try:
+            print(self.ActiveTeam.Players)
             for key, val in self.ActiveTeam.Players.items():
                 self.NameVariables[key] = ctk.StringVar(value=val.Name)
         except AttributeError:
             pass
         if mode == "add":
-            if self.ActiveTeam.Name.strip() != "":
+            if self.TeamNameVar.get().strip() != "":
                 self.ActiveTeam.Name = self.TeamNameVar.get()
                 
             else:
@@ -579,7 +601,7 @@ class GUI(ctk.CTk):
                     self.ActiveTeam = Teams[list(Teams.keys())[0]]
                 self.ChooseButton.configure(command=lambda: self.EditTeam(self.TeamChoiceOption.get()))
                 self.HeadLabel.configure(text="Válaszd ki a csapatot amit szerkeszteni szeretnél")
-        SetTeamStats(self.ActiveTeam, True)
+        # self.ActiveTeam.SetStats(True)
     
     def DeleteTeam(self, name):
         answer = tkm.askyesno(title="Csapat Törlése", message=f"Biztos vagy benne hogy törölni szeretnék a {name} nevű csapatot?")
@@ -606,14 +628,15 @@ class GUI(ctk.CTk):
             self.ActiveTeam.Tactics[key] = val.get()
         
     def CreatePlayer(self, pos):
+        print(pos)
         self.CreatedPlayer.Name = self.PlayerNameVar.get()
         for key in self.CreatedPlayer.Stats.keys():
             self.CreatedPlayer.Stats[key] = int(self.StatVars[key].get())
         self.CreatedPlayer.Position = self.PlayerPosVar.get()
         self.ActiveTeam.Players[pos] = self.CreatedPlayer
         self.TeamFormationScreenBtn("edit")
-        for player in self.ActiveTeam.Players.values():
-            print(player.Name)
+        # for player in self.ActiveTeam.Players.values():
+        #     print(player.Name)
 
     def GetNewTeamNum(self):
         num = 0
