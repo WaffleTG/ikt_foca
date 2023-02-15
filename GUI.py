@@ -137,31 +137,67 @@ class GUI(ctk.CTk):
             # self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
             
     def SimulationScreen(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
-        team1.SetStats()
-        team2.SetStats()
+        team1.SetStats(True)
+        team2.SetStats(True)
         self.clearWindow()
         self.speedVar = ctk.IntVar(value=1)
         self.timeVar = ctk.IntVar(value=0)
         self.columnconfigure((0,1,2,3,4), weight=1)
         self.rowconfigure((0,1,3,4,5,6), weight=0)
         self.rowconfigure(2, weight=0)
-        self.Score = "0  -  0"
+        self.ScoreList = [0, 0]
+        self.Score = ctk.StringVar(value=f"{self.ScoreList[0]}  -  {self.ScoreList[1]}")
         #első sor
         self.TimeLabel = ctk.CTkLabel(self, textvariable = self.timeVar, font=self.SimNumFont).grid(column=1,columnspan=3,row=0)
         self.StatButton = ctk.CTkButton(self, 200,40, text="Statisztika", font=self.EntryFont).grid(column=4, row=0)
         
         #második sor
         self.Team1Label = ctk.CTkLabel(self, text=team1.Name, font=self.SimTeamFont).grid(column=0 ,row=1, sticky="e")
-        self.ScoreLabel = ctk.CTkLabel(self, text=self.Score, font=self.SimNumFont).grid(column=1,columnspan=3,row=1)
+        self.ScoreLabel = ctk.CTkLabel(self, textvariable = self.Score, font=self.SimNumFont).grid(column=1,columnspan=3,row=1)
         self.Team2Label = ctk.CTkLabel(self, text=team2.Name, font=self.SimTeamFont).grid(column=4 ,row=1, sticky="w")
         
         #harmadik sor
         self.CommentaryBox = ctk.CTkFrame(self, width=900, height=150).grid(column=0,columnspan=5 ,row=2)
-        self.SimTest(team1, team2, ChanceCount, MatchLength, 1000)
+        
+        #negyedik sor
+        self.StartButton = ctk.CTkButton(self, 200,40, text="Szimuláció indítása", font=self.EntryFont, command=lambda: self.StartSim(team1, chances, ChanceCount, MatchLength, self.timeVar.get()))
+        self.StartButton.grid(column=0, row=3, pady=20, padx=(60,0))
+        self.StopButton = ctk.CTkButton(self, 200,40, text="Szimuláció Megállítása", font=self.EntryFont, command=self.StopSim, state="disabled")
+        self.StopButton.grid(column=1, row=3, pady=20)
+        
+        chances = self.GenerateSimulation(team1, team2, ChanceCount, MatchLength)[0] 
         #Simulation
+    def tksleep(self, time:float) -> None:
+        self.after(int(time*1000), self.quit)
+        self.mainloop()
+    def StartSim(self, team1, chances, ChanceCount, MatchLength, Begin):
+        self.run =  True
+        self.StartButton.configure(state="disabled")
+        self.StopButton.configure(state="normal")
+        
+        for i in range(Begin,MatchLength+random.randint(2, int(MatchLength/ChanceCount))):
+            if self.run:
+                self.timeVar.set(i)
+                if i in chances.keys():
+                    
+                    if chances[i].IsGoal:
+                        if chances[i].Team.Name == team1.Name:
+                            self.ScoreList[0] += 1
+                        else:
+                            self.ScoreList[-1] += 1
+                self.Score.set(f"{self.ScoreList[0]}  -  {self.ScoreList[1]}")
+                self.tksleep(0.33/self.speedVar.get())
+            else:
+                return
+
+    def StopSim(self):
+        self.run = False
+        self.StopButton.configure(state="disabled")
+        self.StartButton.configure(state="normal")
+
     def GenerateSimulation(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
-        team1.SetStats()
-        team2.SetStats()
+        team1.SetStats(True)
+        team2.SetStats(True)
         Chances = {}
         for i in range(1, int(ChanceCount)+2):
             AttTeam = random.randint(0, int(team1.MidOverall + team2.MidOverall))
@@ -203,7 +239,7 @@ class GUI(ctk.CTk):
         print(f"{ossz1Golok/simAmount} - {ossz2Golok/simAmount}")
     def EditBtnClick(self):
         self.clearWindow()
-        print(self.ActiveTeam.Name)
+        print(self.ActiveTeam)
         self.addBtn = ctk.CTkButton(self, 400, 80, text="Csapat Hozzáadása", font=self.ButtonFont, command=lambda: self.addBtnClick("add"))
         self.addBtn.pack(pady=30)
 
