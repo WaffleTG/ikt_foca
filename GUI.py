@@ -3,7 +3,7 @@ import tkinter as tk
 from time import sleep
 import tkinter.messagebox as tkm
 import customtkinter as ctk
-from Data import Teams, Formations, PosCords, LastTeam, currentSS
+from Data import Teams, Formations, PosCords, LastTeam, currentSS, GameModes
 from OtherFunctions import Save, Load
 from Classes import Player, Team, Chance
 import webbrowser
@@ -92,50 +92,75 @@ class GUI(ctk.CTk):
             tkm.showinfo(title="Nem Lehet Játékot Indítani!", message="Nincs egy csapat se elmentve!")
         else:
             self.clearWindow()
-            self.selectedVar = ctk.StringVar()
-            self.selectedPlayerVar = ctk.StringVar()
-            self.columnconfigure((0,1,2), weight=1)
-            self.rowconfigure((0,1,2,3,4,5), weight=1)
-            #csapat választó
-            self.teamLabel = ctk.CTkLabel(self, text="Válassz csapatot!", font=(self.EntryFont, 40)).grid(row=0, column=1, sticky="n")
-            self.teamDrpdwn =  ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.selectedVar)
-            self.teamDrpdwn.set(list(Teams.keys())[0])
-            self.teamDrpdwn.grid(row=1, column=1, sticky="n")
-            #Felállás Label
-            self.statLabel1 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Formation), font=(self.EntryFont, 25), wraplength=250).grid(row=3, column=0, sticky="e")
-            self.statNameLabel1 = ctk.CTkLabel(self, text="Felállás", font=(self.EntryFont, 25), wraplength=250).grid(row=2, column=0, sticky="e")
-            #tactics in string format
-            tacticsString = ""
-            for key, value in Teams[self.selectedVar.get()].Tactics.items():
-                tacticsString+=f"{key}: {value}\n"
-            #tactics labes
-            self.statLabel2 = ctk.CTkLabel(self, text=tacticsString, font=(self.EntryFont, 25)).grid(row=3, column=1)
-            self.statNameLabel1 = ctk.CTkLabel(self, text="Taktika", font=(self.EntryFont, 25)).grid(row=2, column=1)
-            #converts all players into a string 
-            playersStrings = []
-            for key, value in Teams[self.selectedVar.get()].Players.items():
-                playersString=f"{key}\n"
-                for key1, value1 in value.Stats.items():
-                    playersString+=f"{key1}: {value1}\n"
-                playersStrings.append(playersString)
-            
-            #dropdown menu playerekkel
-            self.playerDrpdwn = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams[self.selectedVar.get()].Players.keys()), variable=self.selectedPlayerVar)
-            self.playerDrpdwn.set(list(Teams.keys())[0])
-            self.playerDrpdwn.grid(row=3, column=2, sticky="e")
-            #this screwed over a few things gotta fix
+            self.columnconfigure((0,1,2,3), weight=1)
+            self.rowconfigure((0,1,2,3,4,5), weight=0)
+            self.team1Var = ctk.StringVar(value=Teams[list(Teams.keys())[0]].Name)
+            self.team2Var = ctk.StringVar(value=Teams[list(Teams.keys())[0]].Name)
+            self.gameModeVar = ctk.StringVar(value=GameModes[0])
+            self.ChanceCountVar = ctk.IntVar(value=10)
+            self.GameLengthVar = ctk.IntVar(value=90)
+            if len(Teams) > 1:
+                self.team2Var.set(Teams[list(Teams.keys())[1]].Name)
 
-            #playerStrings[0] <- nulla helyett a selected player indexe
-            self.statLabel3 = ctk.CTkLabel(self, text=playersStrings[0], font=(self.EntryFont, 25), wraplength=250).grid(row=4, column=2, sticky="e")
-            self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25), wraplength=200).grid(row=2, column=2, sticky="e")
+            #1.Sor
+            self.HeadLabel = ctk.CTkLabel(self,text="Válassz Csapatokat",font=self.HeaderFont).grid(column=0, columnspan=4, row=0, pady=10)
+            #2.Sor
+            self.Team1Option = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.team1Var).grid(column=1, row=1, pady=20)
+            self.Team2Option = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.team2Var).grid(column=2, row=1, pady=20)
+            self.Rand1Button = ctk.CTkButton(self, 40, 40, text="🎲", font=self.ButtonFont, command=lambda: self.RandomiseTeam(0)).grid(column=0, row=1, sticky="e")
+            self.Rand2Button = ctk.CTkButton(self, 40, 40, text="🎲", font=self.ButtonFont, command=lambda: self.RandomiseTeam(1)).grid(column=3, row=1, sticky="w")
+            #3.sor
+            self.GameModeChoice = ctk.CTkOptionMenu(self, width=300, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=GameModes).grid(column=0, row=2)
+            #4.sor
+            self.GameStartButton = ctk.CTkButton(self, 200, 40, text="Játék indítása", font=self.EntryFont, command=lambda:self.SimulationScreen(Teams[self.team1Var.get()], Teams[self.team2Var.get()],self.ChanceCountVar.get(), self.GameLengthVar.get() )).grid(column=0, row=3, pady=30)
+            # self.selectedVar = ctk.StringVar()
+            # self.selectedPlayerVar = ctk.StringVar()
+            # self.columnconfigure((0,1,2), weight=1)
+            # self.rowconfigure((0,1,2,3,4,5), weight=1)
+            # #csapat választó
+            # self.teamLabel = ctk.CTkLabel(self, text="Válassz csapatot!", font=(self.EntryFont, 40)).grid(row=0, column=1, sticky="n")
+            # self.teamDrpdwn =  ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.selectedVar)
+            # self.teamDrpdwn.set(list(Teams.keys())[0])
+            # self.teamDrpdwn.grid(row=1, column=1, sticky="n")
+            # #Felállás Label
+            # self.statLabel1 = ctk.CTkLabel(self, text=str(Teams[self.selectedVar.get()].Formation), font=(self.EntryFont, 25), wraplength=250).grid(row=3, column=0, sticky="e")
+            # self.statNameLabel1 = ctk.CTkLabel(self, text="Felállás", font=(self.EntryFont, 25), wraplength=250).grid(row=2, column=0, sticky="e")
+            # #tactics in string format
+            # tacticsString = ""
+            # for key, value in Teams[self.selectedVar.get()].Tactics.items():
+            #     tacticsString+=f"{key}: {value}\n"
+            # #tactics labes
+            # self.statLabel2 = ctk.CTkLabel(self, text=tacticsString, font=(self.EntryFont, 25)).grid(row=3, column=1)
+            # self.statNameLabel1 = ctk.CTkLabel(self, text="Taktika", font=(self.EntryFont, 25)).grid(row=2, column=1)
+            # #converts all players into a string 
+            # playersStrings = []
+            # for key, value in Teams[self.selectedVar.get()].Players.items():
+            #     playersString=f"{key}\n"
+            #     for key1, value1 in value.Stats.items():
+            #         playersString+=f"{key1}: {value1}\n"
+            #     playersStrings.append(playersString)
             
-            #meccs kezdése gomb (még nem csinál semmit)
-            self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=lambda: self.SimulationScreen(Teams["Csapat1"],Teams["Csapat2"])).grid(row=5, column=1, sticky="s")
+            # #dropdown menu playerekkel
+            # self.playerDrpdwn = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams[self.selectedVar.get()].Players.keys()), variable=self.selectedPlayerVar)
+            # self.playerDrpdwn.set(list(Teams.keys())[0])
+            # self.playerDrpdwn.grid(row=3, column=2, sticky="e")
+            # #this screwed over a few things gotta fix
+
+            # #playerStrings[0] <- nulla helyett a selected player indexe
+            # self.statLabel3 = ctk.CTkLabel(self, text=playersStrings[0], font=(self.EntryFont, 25), wraplength=250).grid(row=4, column=2, sticky="e")
+            # self.statNameLabel1 = ctk.CTkLabel(self, text="Játékosok", font=(self.EntryFont, 25), wraplength=200).grid(row=2, column=2, sticky="e")
             
-            #vissza gomb
-            # self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
-            # self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
+            # #meccs kezdése gomb (még nem csinál semmit)
+            # self.StartMatchBtn = ctk.CTkButton(self, 400, 80, text="Meccs kezdése!", font=self.ButtonFont, command=lambda: self.SimulationScreen(Teams["Csapat1"],Teams["Csapat2"])).grid(row=5, column=1, sticky="s")
             
+            # #vissza gomb
+            # # self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
+            # # self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
+    def RandomiseTeam(self, teamNum = 0):
+        if teamNum == 0:
+            self.team1Var.set(Teams[list(Teams.keys())[random.randint(0,len(Teams)-1)]].Name)
+        elif teamNum == 1:
+            self.team2Var.set(Teams[list(Teams.keys())[random.randint(0,len(Teams)-1)]].Name)
     def SimulationScreen(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
         team1.SetStats(True)
         team2.SetStats(True)
@@ -149,7 +174,7 @@ class GUI(ctk.CTk):
         self.Score = ctk.StringVar(value=f"{self.ScoreList[0]}  -  {self.ScoreList[1]}")
         #első sor
         self.TimeLabel = ctk.CTkLabel(self, textvariable = self.timeVar, font=self.SimNumFont).grid(column=1,columnspan=3,row=0)
-        self.StatButton = ctk.CTkButton(self, 200,40, text="Statisztika", font=self.EntryFont).grid(column=4, row=0)
+        self.StatButton = ctk.CTkButton(self, 40,40, text="Statisztika", font=self.EntryFont).grid(column=4, row=0)
         
         #második sor
         self.Team1Label = ctk.CTkLabel(self, text=team1.Name, font=self.SimTeamFont).grid(column=0 ,row=1, sticky="e")

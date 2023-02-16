@@ -1,5 +1,6 @@
 Formations = ("4-4-2", "4-3-3", "3-5-2", "4-2-3-1")
 Teams = {}
+GameModes = ["Normal", "Speciális"]
 PosCords = {
     "GK": (330, 520),
     "CB1": (445, 450),
