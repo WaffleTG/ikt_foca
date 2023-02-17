@@ -1,6 +1,12 @@
 Formations = ("4-4-2", "4-3-3", "3-5-2", "4-2-3-1")
 Teams = {}
+ChanceCountModes = {
+    "Normál": 8,
+    "Több": 12,
+    "Sokkal Több": 16 
+}
 GameModes = ["Normal", "Speciális"]
+SaveFileRoute = "Savefiles/"
 PosCords = {
     "GK": (330, 520),
     "CB1": (445, 450),

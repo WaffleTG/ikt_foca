@@ -1,8 +1,8 @@
 from Classes import Team, Player
-from Data import Teams, currentSS, LastTeam, LastTeam
+from Data import Teams, currentSS, LastTeam, LastTeam, SaveFileRoute
 
 def Save(slot:int):
-    f = open(f"save{slot}.save", "w", encoding="utf-8")
+    f = open(f"{SaveFileRoute}save{slot}.save", "w", encoding="utf-8")
     for team in Teams.values():
         line = f"{team.Name};{team.Formation};"
         # f.write(f"{team.Name};{team.Formation};")
@@ -22,14 +22,14 @@ def Save(slot:int):
         f.write(f"{line[:-1]}\n")
     
     f.close()
-    with open(f"save{slot}.save", "r", encoding="utf-8") as f:
+    with open(f"{SaveFileRoute}save{slot}.save", "r", encoding="utf-8") as f:
         print(f.readlines())
 
 
 def Load(slot:int):
     teams = Teams
     try:
-        f = open(f"save{slot}.save", "r", encoding="utf-8")
+        f = open(f"{SaveFileRoute}save{slot}.save", "r", encoding="utf-8")
         # f.readline()
         for sor in f:
             adatok = sor.strip().split(";")
@@ -62,7 +62,7 @@ def Load(slot:int):
         currentSS=slot
         return "Sikeres Betöltés"
     except FileNotFoundError:
-        f = open(f"save{slot}.save", "w", encoding="utf-8")
+        f = open(f"{SaveFileRoute}save{slot}.save{slot}.save", "w", encoding="utf-8")
         f.write(" ")
         f.close()
         currentSS=slot
