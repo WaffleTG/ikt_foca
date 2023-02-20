@@ -143,7 +143,6 @@ class GUI(ctk.CTk):
 
             self.team1Var.trace("w", lambda *args: self.UpdateLabels(args, 0))
             self.team2Var.trace("w", lambda *args: self.UpdateLabels(args, 1))
-            
 
             #7-8.Sor
             self.GameModeChoiceLabel = ctk.CTkLabel(self, font=self.EntryFont, text="Játékmód").grid(column=1, row=6, pady=(20,0), sticky="w", padx=(60,0))
@@ -182,6 +181,7 @@ class GUI(ctk.CTk):
         team2.SetStats(True)
         self.clearWindow()
         self.speedVar = ctk.IntVar(value=1)
+        self.CommentaryVar = ctk.StringVar(value="Meccs Kezdése?")
         self.timeVar = ctk.IntVar(value=0)
         self.columnconfigure((0,1,2,3,4), weight=1)
         self.rowconfigure((0,1,3,4,5,6), weight=0)
@@ -190,7 +190,7 @@ class GUI(ctk.CTk):
         self.Score = ctk.StringVar(value=f"{self.ScoreList[0]}  -  {self.ScoreList[1]}")
         #első sor
         self.TimeLabel = ctk.CTkLabel(self, textvariable = self.timeVar, font=self.SimNumFont).grid(column=1,columnspan=3,row=0)
-        self.StatButton = ctk.CTkButton(self, 40,40, text="Statisztika", font=self.EntryFont).grid(column=4, row=0)
+        self.StatButton = ctk.CTkButton(self, 40,40, text="Statisztika", font=self.EntryFont, command=self.ShowStat).grid(column=4, row=0)
         
         #második sor
         self.Team1Label = ctk.CTkLabel(self, text=team1.Name, font=self.SimTeamFont).grid(column=0 ,row=1, sticky="e")
@@ -198,7 +198,12 @@ class GUI(ctk.CTk):
         self.Team2Label = ctk.CTkLabel(self, text=team2.Name, font=self.SimTeamFont).grid(column=4 ,row=1, sticky="w")
         
         #harmadik sor
-        self.CommentaryBox = ctk.CTkFrame(self, width=900, height=150).grid(column=0,columnspan=5 ,row=2)
+        self.CommentaryLabel = ctk.CTkLabel(self,width=900,height=150, anchor="nw",textvariable = self.CommentaryVar, font=self.EntryFont, bg_color="grey20", fg_color="grey20").grid(column=0, columnspan=5, row=2)
+        # self.CommentaryBox = ctk.CTkFrame(self, width=900, height=150)
+        # self.CommentaryBox.grid(column=0,columnspan=5 ,row=2)
+        # self.CommentaryFrame = ctk.CTkFrame(self.CommentaryBox, width=900, height=150)
+        # self.CommentaryFrame.pack(fill="both")
+        # self.CommentaryLabel = ctk.CTkLabel(self.CommentaryFrame,width=900,height=150, textvariable = self.CommentaryVar, font=self.EntryFont).pack()
         
         #negyedik sor
         self.StartButton = ctk.CTkButton(self, 200,40, text="Szimuláció indítása", font=self.EntryFont, command=lambda: self.StartSim(team1, chances, ChanceCount, MatchLength, self.timeVar.get()))
@@ -216,29 +221,82 @@ class GUI(ctk.CTk):
         self.StartButton.configure(state="disabled")
         self.StopButton.configure(state="normal")
         
-        for i in range(Begin,MatchLength+random.randint(2, int(MatchLength/ChanceCount))):
-            if self.run:
-                self.timeVar.set(i)
-                if i in chances.keys():
-                    
-                    if chances[i].IsGoal:
+        print(self.ExtraTime)
+        for i in range(Begin+1,MatchLength+self.ExtraTime+1):
+            print(i, int(int(MatchLength/2)+self.ExtraTime/3)+1)
+            if i != int(MatchLength/2+self.ExtraTime/3) +1:
+                if self.run:
+                    self.timeVar.set(i)
+                    if i in chances.keys():
+                        
+                        
                         if chances[i].Team.Name == team1.Name:
-                            self.ScoreList[0] += 1
+                            self.ChancesVar.set(f"{int(self.ChancesVar.get()[0]) + 1} - {self.ChancesVar.get()[-1]}")
+                            if chances[i].IsGoal:
+                                self.ScoreList[0] += 1
                         else:
-                            self.ScoreList[-1] += 1
-                self.Score.set(f"{self.ScoreList[0]}  -  {self.ScoreList[1]}")
-                self.tksleep(0.33/self.speedVar.get())
+                            self.ChancesVar.set(f"{self.ChancesVar.get()[0]} - {int(self.ChancesVar.get()[-1]) + 1}")
+                            if chances[i].IsGoal:
+                                self.ScoreList[-1] += 1
+                        
+                            
+                        self.SimulationCommentator(chances[i])
+                        self.tksleep(1)
+                    self.Score.set(f"{self.ScoreList[0]}  -  {self.ScoreList[1]}")
+                   
+                    self.tksleep(0.33/self.speedVar.get())
+                else:
+                    return
             else:
-                return
+                #Félidő
+                self.timeVar.set(i)
+                self.SimulationCommentator(f"Félidő. A Játékosok {self.Score.get()} Állással mennek a szünetre.")
+                self.StopSim()
+    def SimulationCommentator(self, chance):
+        self.CommentaryVar.set("")
+        try:
+            for x in chance.Comm:
+                self.CommentaryVar.set(f"{self.CommentaryVar.get()}{x}")
+                self.tksleep(0.05)
+        except AttributeError:
+            for x in chance:
+                self.CommentaryVar.set(f"{self.CommentaryVar.get()}{x}")
+                self.tksleep(0.05)
 
     def StopSim(self):
         self.run = False
         self.StopButton.configure(state="disabled")
         self.StartButton.configure(state="normal")
 
+    def ShowStat(self):
+        self.StopSim()
+        self.clearWindow()
+        self.columnconfigure((0),weight=1)
+        self.columnconfigure((1,2,3,4,5,),weight=0)
+
+        self.StatHeadLabel = ctk.CTkLabel(self, text="Statisztika", font=self.HeaderFont).grid(column=0,row=0, pady=10)
+        
+        self.GoalStatLabel = ctk.CTkLabel(self, text=f"{self.Score.get()}", font=self.SimNumFont).grid(column=0,row=1, pady=10)
+        self.ChanceStatLabel = ctk.CTkLabel(self, text=f"{self.ChancesVar.get()}", font=self.SimNumFont).grid(column=0,row=2)
+        self.PossessionStatLabel = ctk.CTkLabel(self, text=f"{self.PossesionVar.get()}", font=self.SimNumFont).grid(column=0,row=3, pady=10)
+        self.YellowCardStatLabel = ctk.CTkLabel(self, text=f"{self.ChancesVar.get()}", font=self.SimNumFont).grid(column=0,row=4, pady=10)
+    def GeneratePosVar(self, team1: Team, team2: Team):
+
+        ovr1 = team1.AttOverall + team1.MidOverall * 2 + team1.DefOverall
+        ovr2 = team2.AttOverall + team2.MidOverall * 2 + team2.DefOverall
+        rand1 = random.randint(0, int((ovr1 + ovr2)/(ovr2/ovr1)))
+        rand2 = random.randint(0, int((ovr1 + ovr2)/(ovr1/ovr2)))
+        ovr1 += rand1
+        ovr2 += rand2
+        self.PossesionVar = f"{ovr1 / ((ovr1 + ovr2)/100):.0f}% - {ovr2 / ((ovr1 + ovr2)/100):.0f}%"
+        return self.PossesionVar
+
     def GenerateSimulation(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
         team1.SetStats(True)
         team2.SetStats(True)
+        self.ChancesVar = ctk.StringVar(value="0 - 0")
+        self.PossesionVar = ctk.StringVar(value=self.GeneratePosVar(team1, team2))
+        
         Chances = {}
         for i in range(1, int(ChanceCount)+2):
             AttTeam = random.randint(0, int(team1.MidOverall + team2.MidOverall))
@@ -246,13 +304,15 @@ class GUI(ctk.CTk):
             if AttTeam < team1.MidOverall /100 * 95:
                 AttTeam = team1
                 DefTeam = team2
+                
             elif AttTeam < (team1.MidOverall + team2.MidOverall) / 100 * 95:
                 AttTeam = team2
                 DefTeam = team1
+                
             else:
+                #sárgalap vagy valami 
                 continue
             ChanceTime = random.randint((i-1) * int(MatchLength/ChanceCount) + 1 ,((i) * int(MatchLength/ChanceCount)))
-
             GoalChance = random.randint(0, int(AttTeam.AttOverall /100 * 95) + int(DefTeam.DefOverall))
             if GoalChance < DefTeam.DefOverall:
                 IsGoal = True
@@ -266,6 +326,7 @@ class GUI(ctk.CTk):
                     golok[0] += 1
                 else:
                     golok[1] += 1
+        self.ExtraTime = int(random.randint(1, int(MatchLength/ChanceCount))/2)+1
         return Chances, golok
         
     def SimTest(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90, simAmount=1000):

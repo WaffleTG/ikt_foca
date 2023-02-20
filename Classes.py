@@ -77,7 +77,7 @@ class Chance:
     def __init__(self, time, team: int, goal=False) -> None:
         self.Time = time
         self.Team = team
-        self.Comm = ""
+        self.Comm = "Kindian"
         self.IsGoal = goal
 class Ref:
     def __init__(self, patience, truth) -> None:
