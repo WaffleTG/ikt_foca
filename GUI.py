@@ -62,7 +62,7 @@ class GUI(ctk.CTk):
         self.slot3Btn.pack(pady=30)
 
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
-        self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
+        self.BackBtn.pack(side=tk.BOTTOM, padx=20, anchor="w", pady=10)
 
     def StartScreen(self):
         self.clearWindow()
@@ -81,7 +81,7 @@ class GUI(ctk.CTk):
         self.LoadSaveBtn.pack(pady=30)
 
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="About", font=self.ButtonFont, command=self.AboutClick)
-        self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
+        self.BackBtn.pack(side=tk.BOTTOM, padx=20, anchor="w", pady=10)
 
     def AboutClick(self):
         webbrowser.open("https://google.com/")
@@ -155,7 +155,9 @@ class GUI(ctk.CTk):
             self.GameLengthSlider = ctk.CTkSlider(self, width=280, height=26,from_=30, to=180, number_of_steps=150,variable=self.GameLengthVar, command=self.UpdateLengthSlider).grid(row=9, column=1)
             #11.sor
             
-            self.GameStartButton = ctk.CTkButton(self, 280, 40, text="Játék indítása", font=self.EntryFont, command=lambda:self.SimulationScreen(Teams[self.team1Var.get()], Teams[self.team2Var.get()],self.ChanceCountVar.get(), self.GameLengthVar.get() )).grid(column=2, row=10)
+            self.GameStartButton = ctk.CTkButton(self, 280, 40, text="Játék indítása", font=self.EntryFont, command=lambda:self.SimulationScreen(Teams[self.team1Var.get()], Teams[self.team2Var.get()],self.ChanceCountVar.get(), self.GameLengthVar.get())).grid(column=2, row=10)
+            #labjegyzet
+            self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen).grid(row=11, column=0, sticky="sw",pady=(61,0), padx=20)
     def UpdateChanceCount(self, *args):
         self.ChanceCountVar.set(ChanceCountModes[args[0]])
     def UpdateLengthSlider(self, *args):
@@ -176,21 +178,25 @@ class GUI(ctk.CTk):
             self.team1Var.set(Teams[list(Teams.keys())[random.randint(0,len(Teams)-1)]].Name)
         elif teamNum == 1:
             self.team2Var.set(Teams[list(Teams.keys())[random.randint(0,len(Teams)-1)]].Name)
-    def SimulationScreen(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
+    def SimulationScreen(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90,firstTime=True):
         team1.SetStats(True)
         team2.SetStats(True)
         self.clearWindow()
-        self.speedVar = ctk.IntVar(value=1)
-        self.CommentaryVar = ctk.StringVar(value="Meccs Kezdése?")
-        self.timeVar = ctk.IntVar(value=0)
+        if firstTime:
+            self.stops = []
+            self.ScoreList = [0, 0]
+            self.speedVar = ctk.IntVar(value=1)
+            self.chances = self.GenerateSimulation(team1, team2, ChanceCount, MatchLength)[0] 
+            self.CommentaryVar = ctk.StringVar(value="Meccs Kezdése?")
+            self.timeVar = ctk.IntVar(value=0)
         self.columnconfigure((0,1,2,3,4), weight=1)
         self.rowconfigure((0,1,3,4,5,6), weight=0)
         self.rowconfigure(2, weight=0)
-        self.ScoreList = [0, 0]
-        self.Score = ctk.StringVar(value=f"{self.ScoreList[0]}  -  {self.ScoreList[1]}")
+        
+        self.Score = ctk.StringVar(value=f"{self.ScoreList[0]} - {self.ScoreList[1]}")
         #első sor
         self.TimeLabel = ctk.CTkLabel(self, textvariable = self.timeVar, font=self.SimNumFont).grid(column=1,columnspan=3,row=0)
-        self.StatButton = ctk.CTkButton(self, 40,40, text="Statisztika", font=self.EntryFont, command=self.ShowStat).grid(column=4, row=0)
+        self.StatButton = ctk.CTkButton(self, 40,40, text="Statisztika", font=self.EntryFont, command=lambda:self.ShowStat(team1, team2, ChanceCount, MatchLength)).grid(column=4, row=0)
         
         #második sor
         self.Team1Label = ctk.CTkLabel(self, text=team1.Name, font=self.SimTeamFont).grid(column=0 ,row=1, sticky="e")
@@ -206,41 +212,56 @@ class GUI(ctk.CTk):
         # self.CommentaryLabel = ctk.CTkLabel(self.CommentaryFrame,width=900,height=150, textvariable = self.CommentaryVar, font=self.EntryFont).pack()
         
         #negyedik sor
-        self.StartButton = ctk.CTkButton(self, 200,40, text="Szimuláció indítása", font=self.EntryFont, command=lambda: self.StartSim(team1, chances, ChanceCount, MatchLength, self.timeVar.get()))
+        self.StartButton = ctk.CTkButton(self, 200,40, text="Szimuláció indítása", font=self.EntryFont, command=lambda: self.StartSim(team1,team2, ChanceCount, MatchLength, self.timeVar.get()))
         self.StartButton.grid(column=0, row=3, pady=20, padx=(60,0))
         self.StopButton = ctk.CTkButton(self, 200,40, text="Szimuláció Megállítása", font=self.EntryFont, command=self.StopSim, state="disabled")
         self.StopButton.grid(column=1, row=3, pady=20)
         
-        chances = self.GenerateSimulation(team1, team2, ChanceCount, MatchLength)[0] 
+            
         #Simulation
     def tksleep(self, time:float) -> None:
         self.after(int(time*1000), self.quit)
         self.mainloop()
-    def StartSim(self, team1, chances, ChanceCount, MatchLength, Begin):
+    def StartSim(self, team1,team2, ChanceCount, MatchLength, Begin):
         self.run =  True
         self.StartButton.configure(state="disabled")
         self.StopButton.configure(state="normal")
         
-        print(self.ExtraTime)
         for i in range(Begin+1,MatchLength+self.ExtraTime+1):
             print(i, int(int(MatchLength/2)+self.ExtraTime/3)+1)
             if i != int(MatchLength/2+self.ExtraTime/3) +1:
                 if self.run:
+                    #Possession Chance On Start
                     self.timeVar.set(i)
-                    if i in chances.keys():
+                    try:
+                        PosAmount = random.randint(1, int((self.timeVar.get()-self.stops[-1])/2))
+                    except IndexError:
+                        
+                        PosAmount = random.randint(1, 4)
+                    except ValueError:
+                        PosAmount = random.randint(1, int((self.timeVar.get()-self.stops[-1])*2))
+                    randNum = random.randint(0, round((team1.MidOverall+team2.Overall)*100))
+                    
+                    
+                    if (randNum < team2.MidOverall * int(self.PossesionVar.get()[0:2]) and int(self.PossesionVar.get()[0:2]) > 20) or int(self.PossesionVar.get()[-3:-1]) < 20 :
+                        print(randNum,team2.MidOverall * int(self.PossesionVar.get()[0:2]))
+                        self.PossesionVar.set(f"{int(self.PossesionVar.get()[0:2])-PosAmount}% - {int(self.PossesionVar.get()[-3:-1]) + PosAmount}%")
+                    else:
+                        self.PossesionVar.set(f"{int(self.PossesionVar.get()[0:2]) + PosAmount}% - {int(self.PossesionVar.get()[-3:-1]) - PosAmount}%")
+                    if i in self.chances.keys():
                         
                         
-                        if chances[i].Team.Name == team1.Name:
+                        if self.chances[i].Team.Name == team1.Name:
                             self.ChancesVar.set(f"{int(self.ChancesVar.get()[0]) + 1} - {self.ChancesVar.get()[-1]}")
-                            if chances[i].IsGoal:
+                            if self.chances[i].ChanceType == "Goal":
                                 self.ScoreList[0] += 1
                         else:
                             self.ChancesVar.set(f"{self.ChancesVar.get()[0]} - {int(self.ChancesVar.get()[-1]) + 1}")
-                            if chances[i].IsGoal:
+                            if self.chances[i].ChanceType == "Goal":
                                 self.ScoreList[-1] += 1
                         
                             
-                        self.SimulationCommentator(chances[i])
+                        self.SimulationCommentator(self.chances[i])
                         self.tksleep(1)
                     self.Score.set(f"{self.ScoreList[0]}  -  {self.ScoreList[1]}")
                    
@@ -267,19 +288,20 @@ class GUI(ctk.CTk):
         self.run = False
         self.StopButton.configure(state="disabled")
         self.StartButton.configure(state="normal")
-
-    def ShowStat(self):
+        self.stops.append(self.timeVar.get())
+    def ShowStat(self,team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
         self.StopSim()
         self.clearWindow()
-        self.columnconfigure((0),weight=1)
-        self.columnconfigure((1,2,3,4,5,),weight=0)
+        self.columnconfigure((1),weight=1)
+        self.columnconfigure((0,2,3,4,5,),weight=0)
 
-        self.StatHeadLabel = ctk.CTkLabel(self, text="Statisztika", font=self.HeaderFont).grid(column=0,row=0, pady=10)
+        self.StatHeadLabel = ctk.CTkLabel(self, text="Statisztika", font=self.HeaderFont).grid(column=0,columnspan=2,row=0, pady=10)
         
-        self.GoalStatLabel = ctk.CTkLabel(self, text=f"{self.Score.get()}", font=self.SimNumFont).grid(column=0,row=1, pady=10)
-        self.ChanceStatLabel = ctk.CTkLabel(self, text=f"{self.ChancesVar.get()}", font=self.SimNumFont).grid(column=0,row=2)
-        self.PossessionStatLabel = ctk.CTkLabel(self, text=f"{self.PossesionVar.get()}", font=self.SimNumFont).grid(column=0,row=3, pady=10)
-        self.YellowCardStatLabel = ctk.CTkLabel(self, text=f"{self.ChancesVar.get()}", font=self.SimNumFont).grid(column=0,row=4, pady=10)
+        self.GoalStatLabel = ctk.CTkLabel(self, text=f"{self.Score.get()}", font=self.SimNumFont).grid(column=0,columnspan=2,row=1, pady=10)
+        self.ChanceStatLabel = ctk.CTkLabel(self, text=f"{self.ChancesVar.get()}", font=self.SimNumFont).grid(column=0,columnspan=2,row=2)
+        self.PossessionStatLabel = ctk.CTkLabel(self, text=f"{self.PossesionVar.get()}", font=self.SimNumFont).grid(column=0,columnspan=2,row=3, pady=10)
+        self.YellowCardStatLabel = ctk.CTkLabel(self, text=f"{self.ChancesVar.get()}", font=self.SimNumFont).grid(column=0,columnspan=2,row=4, pady=10)
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=lambda:self.SimulationScreen(team1, team2, ChanceCount, MatchLength, False)).grid(column=0, row=5, sticky="sw")
     def GeneratePosVar(self, team1: Team, team2: Team):
 
         ovr1 = team1.AttOverall + team1.MidOverall * 2 + team1.DefOverall
@@ -288,8 +310,8 @@ class GUI(ctk.CTk):
         rand2 = random.randint(0, int((ovr1 + ovr2)/(ovr1/ovr2)))
         ovr1 += rand1
         ovr2 += rand2
-        self.PossesionVar = f"{ovr1 / ((ovr1 + ovr2)/100):.0f}% - {ovr2 / ((ovr1 + ovr2)/100):.0f}%"
-        return self.PossesionVar
+        self.PossesionVar = ctk.StringVar(value=f"{ovr1 / ((ovr1 + ovr2)/100):.0f}% - {ovr2 / ((ovr1 + ovr2)/100):.0f}%") 
+        return self.PossesionVar.get()
 
     def GenerateSimulation(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
         team1.SetStats(True)
@@ -309,19 +331,22 @@ class GUI(ctk.CTk):
                 AttTeam = team2
                 DefTeam = team1
                 
-            else:
-                #sárgalap vagy valami 
-                continue
+            
             ChanceTime = random.randint((i-1) * int(MatchLength/ChanceCount) + 1 ,((i) * int(MatchLength/ChanceCount)))
+            #Szimuláció 2023.02.21
             GoalChance = random.randint(0, int(AttTeam.AttOverall /100 * 95) + int(DefTeam.DefOverall))
             if GoalChance < DefTeam.DefOverall:
                 IsGoal = True
             else:
                 IsGoal = False
             Chances.setdefault(ChanceTime, Chance(ChanceTime, AttTeam, IsGoal))
+
+
+
+
         golok = [0,0]
         for x in Chances.values():
-            if x.IsGoal:
+            if x.ChanceType == "Goal":
                 if x.Team.Name == team1.Name:
                     golok[0] += 1
                 else:
@@ -355,7 +380,7 @@ class GUI(ctk.CTk):
         self.SaveBtn.pack(pady=0)
 
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
-        self.BackBtn.pack(side=tk.BOTTOM, padx=10, anchor="w", pady=10)
+        self.BackBtn.pack(side=tk.BOTTOM, padx=20, anchor="w", pady=10)
 
     def addBtnClick(self, mode):
         self.clearWindow()
@@ -444,8 +469,8 @@ class GUI(ctk.CTk):
         self.ShootRateVarLabel = ctk.CTkLabel(self, textvariable = self.TacticsVars["Shootrate"], font=self.EntryFont).grid(row=10, column=3, sticky="e",padx=10)
         self.ShootRateSlider = ctk.CTkSlider(self, width=200, height=26,from_=0, to=100, number_of_steps=100, variable=self.TacticsVars["Shootrate"]).grid(row=10, column=4, sticky="w", padx=(0,40))
 
-        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.EditBtnClick).grid(row=11, column=0, sticky="w", pady=(120,0), padx=xPadding)
-        self.SaveTeam = ctk.CTkButton(self, 120, 40, text="Taktika Mentése", font=self.ButtonFont, command=self.SaveActiveTeam).grid(row=11, column=4, sticky="w", pady=(120,0), padx=xPadding)
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.EditBtnClick).grid(row=11, column=0, sticky="w",pady=(127,0), padx=xPadding)
+        self.SaveTeam = ctk.CTkButton(self, 120, 40, text="Taktika Mentése", font=self.ButtonFont, command=self.SaveActiveTeam).grid(row=11, column=4, sticky="sw", padx=xPadding)
 
     def TeamFormationScreenBtn(self, mode):
         self.clearWindow()
@@ -492,7 +517,7 @@ class GUI(ctk.CTk):
 
         self.FormationFrame = ctk.CTkFrame(self, width=700,height=580, fg_color="green")
         self.FormationFrame.grid(row=0, column=2,rowspan=5, sticky="e")
-        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=lambda: self.addBtnClick("edit")).grid(row=3, column=0, sticky="nw", padx=20, pady=(80,0))
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=lambda: self.addBtnClick("edit")).grid(row=3, column=0, sticky="sw", padx=20, pady=(90,0))
         self.GKLabel = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["GK"], font=self.FormationFont, fg_color=StarterLabelBgColor, bg_color=StarterLabelBgColor, cursor=self.LabelCursor)
         self.GKLabel.place(x=PosCords["GK"][0], y=PosCords["GK"][1])
         self.CB1Label = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["CB1"], font=self.FormationFont, fg_color=StarterLabelBgColor, bg_color=StarterLabelBgColor, cursor=self.LabelCursor).place(x=PosCords["CB1"][0],y=PosCords["CB1"][1])

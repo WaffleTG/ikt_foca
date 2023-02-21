@@ -74,11 +74,14 @@ class Team:
         
 
 class Chance:
-    def __init__(self, time, team: int, goal=False) -> None:
+    def __init__(self, time, team: int, chanceType:str, player:Player) -> None:
         self.Time = time
         self.Team = team
         self.Comm = "Kindian"
-        self.IsGoal = goal
+        self.ChanceType = chanceType
+        self.Player = player
+    def GenerateComm(self):
+        pass
 class Ref:
     def __init__(self, patience, truth) -> None:
         self.patience =  patience
