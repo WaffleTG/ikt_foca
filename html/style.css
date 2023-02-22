@@ -2,14 +2,7 @@ body{
     background-color: lightblue;
 }
 
-#home{
-/* a */
-}
-
-#features{
-/* a */
-}
-
-#code{
-/* a */
+.card{
+    margin-left: auto;
+    margin-right: auto;
 }
