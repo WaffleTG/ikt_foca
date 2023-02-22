@@ -223,7 +223,7 @@ class GUI(ctk.CTk):
         self.after(int(time*1000), self.quit)
         self.mainloop()
     def StartSim(self, team1,team2, ChanceCount, MatchLength, Begin):
-        self.run =  True
+        self.run = True
         self.StartButton.configure(state="disabled")
         self.StopButton.configure(state="normal")
         
@@ -334,6 +334,34 @@ class GUI(ctk.CTk):
             
             ChanceTime = random.randint((i-1) * int(MatchLength/ChanceCount) + 1 ,((i) * int(MatchLength/ChanceCount)))
             #Szimuláció 2023.02.21
+            chanceTypes = {
+                "LonshotChance": AttTeam.Tactics["Shootrate"],
+                "BigChance": 1/AttTeam.Tactics["Attackspeed"]*100 + AttTeam.getTeamWork() + AttTeam.Tactics["Attackwidth"] + AttTeam.Tactics["Passlength"],
+                "YellowCardChance": AttTeam.Tactics["Agressivness"],
+                "RedCardChance": AttTeam.Tactics["Agressivness"]/4,
+                "OffsideChance": AttTeam.Tactics["Attackspeed"]/2
+            }
+            
+            Ovr = sum(chanceTypes.values())
+            random.randint(0, Ovr)
+            if chanceTypes.values()[0] > Ovr:
+                ChancePlayer = self.GenerateLongShotPlayer(AttTeam)
+                #Távoli Lövés Legnagyobb Lövés Statunak van a legnagyobb esélye lőni           
+            elif sum(list(chanceTypes.values())[0:2]) > Ovr:
+                ChancePlayer = self.GenerateBigChancePlayer()
+                #Nagy Helyzet
+                pass
+            elif sum(list(chanceTypes.values())[0:3]) > Ovr:
+                #Sárgalap
+                pass
+            elif sum(list(chanceTypes.values())[0:4]) > Ovr:
+                #PirosLap
+                pass
+            else: 
+                #Les
+                pass
+
+                
             GoalChance = random.randint(0, int(AttTeam.AttOverall /100 * 95) + int(DefTeam.DefOverall))
             if GoalChance < DefTeam.DefOverall:
                 IsGoal = True
@@ -353,7 +381,6 @@ class GUI(ctk.CTk):
                     golok[1] += 1
         self.ExtraTime = int(random.randint(1, int(MatchLength/ChanceCount))/2)+1
         return Chances, golok
-        
     def SimTest(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90, simAmount=1000):
         ossz1Golok = 0 
         ossz2Golok = 0
@@ -364,6 +391,16 @@ class GUI(ctk.CTk):
             ossz2Golok += golok[1]
 
         print(f"{ossz1Golok/simAmount} - {ossz2Golok/simAmount}")
+    def GenerateBigChancePlayer(self):
+        pass
+    def GenerateLongShotPlayer(self, team):
+        ShotOverall = 0  
+        ActivePlayers = {}
+        for key, player in team.Players.items():
+            if "SUB" not in key and "RES" not in key:
+                ShotOverall += player.Stats["Shoot"]
+                ActivePlayers.setdefault(key, player.Stats["Shoot"])
+        return team.Players[ActivePlayers.keys()[list(ActivePlayers.values()).index(random.choices(list(ActivePlayers.values()), k=1, weights=list(ActivePlayers.values())))]]
     def EditBtnClick(self):
         self.clearWindow()
         print(self.ActiveTeam)
