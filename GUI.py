@@ -6,6 +6,7 @@ from Data import Teams, Formations, PosCords, LastTeam, currentSS, GameModes, Ch
 from OtherFunctions import Save, Load
 from Classes import Player, Team, Chance
 import webbrowser
+import copy
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -179,6 +180,7 @@ class GUI(ctk.CTk):
         elif teamNum == 1:
             self.team2Var.set(Teams[list(Teams.keys())[random.randint(0,len(Teams)-1)]].Name)
     def SimulationScreen(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90,firstTime=True):
+
         team1.SetStats(True)
         team2.SetStats(True)
         self.clearWindow()
@@ -314,6 +316,8 @@ class GUI(ctk.CTk):
         return self.PossesionVar.get()
 
     def GenerateSimulation(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
+        team1 = copy.copy(team1)
+        team2 = copy.copy(team2)
         team1.SetStats(True)
         team2.SetStats(True)
         self.ChancesVar = ctk.StringVar(value="0 - 0")
@@ -335,31 +339,39 @@ class GUI(ctk.CTk):
             ChanceTime = random.randint((i-1) * int(MatchLength/ChanceCount) + 1 ,((i) * int(MatchLength/ChanceCount)))
             #Szimuláció 2023.02.21
             chanceTypes = {
-                "LonshotChance": AttTeam.Tactics["Shootrate"],
-                "BigChance": 1/AttTeam.Tactics["Attackspeed"]*100 + AttTeam.getTeamWork() + AttTeam.Tactics["Attackwidth"] + AttTeam.Tactics["Passlength"],
-                "YellowCardChance": AttTeam.Tactics["Agressivness"],
-                "RedCardChance": AttTeam.Tactics["Agressivness"]/4,
-                "OffsideChance": AttTeam.Tactics["Attackspeed"]/2
+                "LonshotChance": int(AttTeam.Tactics["Shootrate"] + AttTeam.Tactics["Agressivness"]/4),
+                "BigChance": int((1/AttTeam.Tactics["Attackspeed"]*100 + AttTeam.getTeamWork() + AttTeam.Tactics["Attackwidth"] + AttTeam.Tactics["Passlength"] + AttTeam.Tactics["Agressivness"]/2)/1.5),
+                "YellowCardChance": int(AttTeam.Tactics["Agressivness"]),
+                "RedCardChance": int(AttTeam.Tactics["Agressivness"]/2),
+                "OffsideChance": int(AttTeam.Tactics["Attackspeed"]/2),
+                "Corner": int(AttTeam.Tactics["Attackspeed"] + AttTeam.Tactics["Attackwidth"])
             }
             
             Ovr = sum(chanceTypes.values())
-            random.randint(0, Ovr)
-            if chanceTypes.values()[0] > Ovr:
-                ChancePlayer = self.GenerateLongShotPlayer(AttTeam)
-                #Távoli Lövés Legnagyobb Lövés Statunak van a legnagyobb esélye lőni           
-            elif sum(list(chanceTypes.values())[0:2]) > Ovr:
-                ChancePlayer = self.GenerateBigChancePlayer()
-                #Nagy Helyzet
-                pass
-            elif sum(list(chanceTypes.values())[0:3]) > Ovr:
-                #Sárgalap
-                pass
-            elif sum(list(chanceTypes.values())[0:4]) > Ovr:
-                #PirosLap
-                pass
-            else: 
-                #Les
-                pass
+            print(chanceTypes.values())
+            ChanceType = list(chanceTypes.keys())[list(chanceTypes.values()).index(random.choices(list(chanceTypes.values()), k=1, weights=list(chanceTypes.values()))[0])]
+            
+            
+            match ChanceType:
+                case "LongshotChance":
+                    #Távoli Lövés Legnagyobb Lövés Statunak van a legnagyobb esélye lőni        
+                    ChancePlayer = self.GenerateChancePlayerByAttribute(AttTeam, "Shoot")
+                case "BigChance":
+                    #Nagy Helyzet
+                    ChancePlayer = self.GenerateBigChancePlayer()
+                case "YellowCardChance":
+                    #Sárgalap
+                    ChancePlayer = self.GenerateChancePlayerByAttribute(AttTeam, "Agressivness")
+                case "RedCardChance": 
+                    #PirosLap
+                    ChancePlayer = self.GenerateChancePlayerByAttribute(AttTeam, "Agressivness")
+                case "OffsideChance":
+                    #Les
+                    pass
+                case _:
+                    #Szöglet
+                    pass
+            print(ChanceType)
 
                 
             GoalChance = random.randint(0, int(AttTeam.AttOverall /100 * 95) + int(DefTeam.DefOverall))
@@ -367,7 +379,7 @@ class GUI(ctk.CTk):
                 IsGoal = True
             else:
                 IsGoal = False
-            Chances.setdefault(ChanceTime, Chance(ChanceTime, AttTeam, IsGoal))
+            Chances.setdefault(ChanceTime, Chance(ChanceTime, AttTeam, ChanceType, ChancePlayer))
 
 
 
@@ -393,13 +405,13 @@ class GUI(ctk.CTk):
         print(f"{ossz1Golok/simAmount} - {ossz2Golok/simAmount}")
     def GenerateBigChancePlayer(self):
         pass
-    def GenerateLongShotPlayer(self, team):
-        ShotOverall = 0  
+    def GenerateChancePlayerByAttribute(self, team, attribute):
+        AttrOverall = 0  
         ActivePlayers = {}
         for key, player in team.Players.items():
             if "SUB" not in key and "RES" not in key:
-                ShotOverall += player.Stats["Shoot"]
-                ActivePlayers.setdefault(key, player.Stats["Shoot"])
+                AttrOverall += player.Stats[attribute]
+                ActivePlayers.setdefault(key, player.Stats[attribute])
         return team.Players[ActivePlayers.keys()[list(ActivePlayers.values()).index(random.choices(list(ActivePlayers.values()), k=1, weights=list(ActivePlayers.values())))]]
     def EditBtnClick(self):
         self.clearWindow()
