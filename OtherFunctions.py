@@ -50,8 +50,8 @@ def Load(slot:int):
                 print(data)
                 OnePlayerData = data.split(":")
                 try:
-                    player = Player(OnePlayerData[0], int(OnePlayerData[1]), int(OnePlayerData[2]), int(OnePlayerData[3]), int(OnePlayerData[4]), int(OnePlayerData[5]), int(OnePlayerData[6]), OnePlayerData[7])
-                    players.setdefault(OnePlayerData[8], player)
+                    player = Player(OnePlayerData[0], int(OnePlayerData[1]), int(OnePlayerData[2]), int(OnePlayerData[3]), int(OnePlayerData[4]), int(OnePlayerData[5]), int(OnePlayerData[6]), int(OnePlayerData[7]), int(OnePlayerData[8]), OnePlayerData[9])
+                    players.setdefault(OnePlayerData[10], player)
                 
                 except IndexError:
                     print("Error")

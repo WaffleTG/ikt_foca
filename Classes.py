@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, name: str, defending: int,pace: int,attacking: int,passing: int, goalkeepeing: int, teamwork: int, pos: str) -> None:
+    def __init__(self, name: str, defending: int,pace: int,attacking: int,passing: int, goalkeepeing: int, teamwork: int, stamina: int, agressivness: int, pos: str ) -> None:
         self.Name = name
         self.Stats = {
             "Defending":defending,
@@ -7,7 +7,9 @@ class Player:
             "Attacking": attacking,
             "Passing": passing,
             "GoalKeeping": goalkeepeing,
-            "Teamwork": teamwork
+            "Teamwork": teamwork,
+            "Stamina": stamina,
+            "Agressivness": agressivness
         }
         # self.Defending = defending
         # self.Pace = pace
@@ -15,7 +17,7 @@ class Player:
         # self.Passing = passing
         # self.Teamwork = teamwork
         self.Position = pos
-        self.Overall = int((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/4.5)
+        self.Overall = int((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/5.5)
         print(self.Overall)
 
 class Team:
