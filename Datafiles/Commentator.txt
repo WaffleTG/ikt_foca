@@ -1,0 +1,41 @@
+#Les
+Ha egy ütemmel később mozdul, akkor már nem lett volna les.
+A partjelző a helyén volt. Szabadrúgás kifelé.
+A partjelző kérlelhetetlen, ez les volt. A játékvezető pedig hitt neki.
+Les, les, les. Jelzi a partjelző, akceptálja a játékvezető.
+Bizony magasban a zászló, ez les.
+
+#Gól
+A szurkolók már beintenék a lest, de a játék megy tovább. $NEV, EZ HELYZET! $NEV HATALMAS gólt szerez, de vajon mit mond a VAR? GÓÓL!
+Hatalmas lövés! GÓÓÓL! $NEV bődületes erővel bombázta a labdát a kapuba!
+A labda a hálóban. A fociban ezt gólnak hívják. $NEV $RANDPLAYER beadása után megrúgja $GOLOKSZAMA. gólját a meccsen.
+Az előző 5 percben csak másodpercekig volt a $CSAPATNEV birtokában a labda, de vajon mit tartogat még a mérkőzés. $NEV LŐ! GÓL!
+Gól! $CSAPATNEV $NEV nevű játékosa a betalállt a hálóba a mérkőzés $IDO. percében.
+
+#Távoli Lövés
+Az előző sokkal jobban sikerült neki.
+Nem találta el tökéletesen a labdát, de így se volt rossz próbálkozás.
+Ha a kapu felé még egy kaput emeltek volna, úgy hiszem még úgy is fölé ment volna.
+A mindenit! Nemcsak, hogy kivédte, meg is fogta.
+
+#Nagy Helyzet Megakadályozása
+Az ilyen megmozdulások után azt hiszem, ennek a játékosnak csapattársai szobrot emelnek majd.
+Jó helyen volt, jó időben. Ennyit a támadásról egyelőre
+Ejha! $NEV Megszerzi a labdát, pont jókor.
+Ezzel a szereléssel megakasztotta a támadást.
+Ügyesen akasztották meg a támadást.
+$NEV Jól eltalálta a kapust, bár nem hiszem, hogy ez lett volna a célja.
+
+#SárgaLap
+$NEV elképesztően agresszívan támadta a labdát, de még az ellenfél játoksát is. Ebből sárga lap lesz.
+$NEV csúnyán odarúgott ellenfelének. Csodálkoznék, ha ez nem érne lapot, de vajon milyen színű lesz? Sárga!
+Csúnya megmozdulás $NEV részéről. Ez sárga lapot fog érni!
+
+#PirosLap
+$NEV csúnyán odarúgott ellenfelének. Csodálkoznék, ha ez nem érne lapot, de vajon milyen színű lesz? Sárga!
+$NEV megsértette a fairplay $RAND. szabályát, ezért ki kell állítani. Nagy baki ez a csapatának.
+$NEV 
+
+
+
+
