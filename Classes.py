@@ -1,3 +1,6 @@
+from Data import Commentaries
+import random
+
 class Player:
     def __init__(self, name: str, defending: int,pace: int,attacking: int,passing: int, goalkeepeing: int, teamwork: int, stamina: int, agressivness: int, pos: str ) -> None:
         self.Name = name
@@ -32,7 +35,7 @@ class Team:
         self.MidOverall = 0
         self.DefOverall = 0
         self.KeeperOverall = 0
-        
+        self.ActivePlayers = {}
     def getTeamWork(self):
         if len(self.Players) > 0:
             ovr = 0
@@ -45,6 +48,9 @@ class Team:
         return self.TeamWorkOverall
     def getOverall(self):
         pass
+    def GetActivePlayers(self):
+        activePlayers = {key:player for key,player in self.Players.items() if "SUB" not in key and "RES" not in key}
+        self.ActivePlayers = activePlayers.copy()
 
     def SetStats(self, debug=False):
         defOvr = 0
@@ -76,15 +82,22 @@ class Team:
         
 
 class Chance:
-    def __init__(self, time, team: int, chanceType:str, player:Player) -> None:
+    def __init__(self, time, team: Team, chanceType:str, player:Player) -> None:
         self.Time = time
         self.Team = team
         self.Comm = "Kindian"
         self.ChanceType = chanceType
         self.Player = player
     def GenerateComm(self):
-        pass
+        self.Team.GetActivePlayers()
+        self.Comm = random.choice(Commentaries[self.ChanceType]).replace("$NEV", self.Player.Name.split()[0]).replace("$IDO", str(self.Time)).replace("$CSAPATNEV", self.Team.Name).replace("$RANDPLAYER", random.choice(list(self.Team.ActivePlayers.values())).Name)
+        
 class Ref:
-    def __init__(self, patience, truth) -> None:
-        self.patience =  patience
-        self.truth = truth
+    def __init__(self, patience, mistakes, name) -> None:
+        self.Name = name
+        self.Patience =  patience
+        self.Mistakes = mistakes
+# print(Commentaries.keys())
+# Chance1 = Chance(1, Team("asdasd", "4-4-2", {}, {"LM":  Player("kindina", 1, 2,3,4,5,6,7,8,"a")}), "Goal", Player("d", 1, 2,3,4,5,6,7,8,"a"))
+# Chance1.GenerateComm()
+# print(Chance1.Comm)

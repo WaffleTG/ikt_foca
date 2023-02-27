@@ -7,6 +7,15 @@ ChanceCountModes = {
 }
 GameModes = ["Normal", "Speciális"]
 SaveFileRoute = "Savefiles/"
+TacticsKeys = ["Defwidth", "Defline","Agressivness","Defstyle","Attackwidth","Passlength","Attackspeed","Shootrate"]
+with open("Datafiles/Commentator.txt", "r", encoding="utf-8") as f:
+            scenarios = f.read().split(";")
+            Commentaries = {}
+            for x in scenarios:
+                data = x.strip().split('\n')
+                key = data[0]
+                val = [data[i] for i in range(1, len(data))]
+                Commentaries.setdefault(key, val)
 PosCords = {
     "GK": (330, 520),
     "CB1": (445, 450),
@@ -26,7 +35,7 @@ PosCords = {
     "ST": (320, 150),
     "RST": (420, 150),
     "LST":(220, 150)
-}
+} 
 for i in range(1, 9):
     PosCords.setdefault(f"SUB{i}", (235, 20+i*35))
     PosCords.setdefault(f"RES{i}", (20, 20+i*35))
@@ -34,3 +43,4 @@ for i in range(9, 11):
     PosCords.setdefault(f"RES{i}", (20, 20+i*35))
 LastTeam = 0
 currentSS = 1
+
