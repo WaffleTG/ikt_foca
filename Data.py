@@ -9,13 +9,13 @@ GameModes = ["Normal", "Speciális"]
 SaveFileRoute = "Savefiles/"
 TacticsKeys = ["Defwidth", "Defline","Agressivness","Defstyle","Attackwidth","Passlength","Attackspeed","Shootrate"]
 with open("Datafiles/Commentator.txt", "r", encoding="utf-8") as f:
-            scenarios = f.read().split(";")
-            Commentaries = {}
-            for x in scenarios:
-                data = x.strip().split('\n')
-                key = data[0]
-                val = [data[i] for i in range(1, len(data))]
-                Commentaries.setdefault(key, val)
+    scenarios = f.read().split(";")
+    Commentaries = {}
+    for x in scenarios:
+        data = x.strip().split('\n')
+        key = data[0]
+        val = [data[i] for i in range(1, len(data))]
+        Commentaries.setdefault(key, val)
 PosCords = {
     "GK": (330, 520),
     "CB1": (445, 450),

@@ -36,6 +36,7 @@ class Team:
         self.DefOverall = 0
         self.KeeperOverall = 0
         self.ActivePlayers = {}
+        self.SimulationId = 0
     def getTeamWork(self):
         if len(self.Players) > 0:
             ovr = 0
@@ -52,11 +53,12 @@ class Team:
         activePlayers = {key:player for key,player in self.Players.items() if "SUB" not in key and "RES" not in key}
         self.ActivePlayers = activePlayers.copy()
 
-    def SetStats(self, debug=False):
+    def SetStats(self,SimId: int ,debug=False):
         defOvr = 0
         midOvr = 0
         attOvr = 0
         keepOvr = 0
+        self.SimulationId = SimId
 
         try:
             keepOvr += self.Players["GK"].Stats["GoalKeeping"] * self.getTeamWork() / 99
@@ -90,7 +92,7 @@ class Chance:
         self.Player = player
     def GenerateComm(self):
         self.Team.GetActivePlayers()
-        self.Comm = random.choice(Commentaries[self.ChanceType]).replace("$NEV", self.Player.Name.split()[0]).replace("$IDO", str(self.Time)).replace("$CSAPATNEV", self.Team.Name).replace("$RANDPLAYER", random.choice(list(self.Team.ActivePlayers.values())).Name)
+        self.Comm = random.choice(Commentaries[self.ChanceType]).replace("$NEV", self.Player.Name.split()[0]).replace("$IDO", str(self.Time)).replace("$CSAPATNEV", self.Team.Name).replace("$RANDPLAYER", random.choice(list(self.Team.ActivePlayers.values())).Name).replace("$RAND", str(random.randint(1,200)))
         
 class Ref:
     def __init__(self, patience, mistakes, name) -> None:

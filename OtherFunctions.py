@@ -91,3 +91,7 @@ def OnStart(Message=""):
         with open("Datafiles/StartLog.txt", "a", encoding="utf-8") as f:
             now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             f.write(f"{now}{Message}\n")
+def GenerateRandName():
+    with open("Datafiles/Referees.txt", "r", encoding="utf-8") as f:
+        return random.choice(list(f.readlines())).split(' ')[0]
+

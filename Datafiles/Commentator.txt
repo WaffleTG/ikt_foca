@@ -1,41 +1,48 @@
-#Les
-Ha egy ütemmel később mozdul, akkor már nem lett volna les.
-A partjelző a helyén volt. Szabadrúgás kifelé.
-A partjelző kérlelhetetlen, ez les volt. A játékvezető pedig hitt neki.
-Les, les, les. Jelzi a partjelző, akceptálja a játékvezető.
-Bizony magasban a zászló, ez les.
-
-#Gól
+OffsideChance
+Ha $NEV egy ütemmel később mozdul, akkor már nem lett volna les.
+A partjelző a helyén volt. $NEV pedig lesen. Szabadrúgás kifelé.
+A partjelző kérlelhetetlen, ez les volt. A játékvezető pedig hitt neki. $NEV egy ütemmel elöbb indult az ideálisnál.
+Les, les, les. Jelzi a partjelző, akceptálja a játékvezető, majd $NEV valamit odasúg neki.
+Bizony magasban a zászló, $NEV lesen helyezkedett. Edzőbá nem lesz büszke!
+$NEV lő! GÓÓl! A kapusnak eséyle sincs védeni, de talán mégis... A lambda a hálóban landol, ez gól!
+$NEV egy igazi magyar géniusz, kicselezte az összes védőt, majd a kapuba talált
+$RANDPLAYER eltalálta a kapufát! A labda odapattant $NEV elé. Micsoda szerencse! $NEV lő! GÓÓÓL!
+$NEV lövése csak akkor menne be, ha a kaput odébb tolnák. Micsoda szerencse, hogy pont ez történt. $NEV gólt szerez!
+$NEV egész jól eltalálta a labdát, de még a kaput is! Ezt gólnak hívják!
+;
+Goal
 A szurkolók már beintenék a lest, de a játék megy tovább. $NEV, EZ HELYZET! $NEV HATALMAS gólt szerez, de vajon mit mond a VAR? GÓÓL!
 Hatalmas lövés! GÓÓÓL! $NEV bődületes erővel bombázta a labdát a kapuba!
 A labda a hálóban. A fociban ezt gólnak hívják. $NEV $RANDPLAYER beadása után megrúgja $GOLOKSZAMA. gólját a meccsen.
 Az előző 5 percben csak másodpercekig volt a $CSAPATNEV birtokában a labda, de vajon mit tartogat még a mérkőzés. $NEV LŐ! GÓL!
-Gól! $CSAPATNEV $NEV nevű játékosa a betalállt a hálóba a mérkőzés $IDO. percében.
-
-#Távoli Lövés
-Az előző sokkal jobban sikerült neki.
-Nem találta el tökéletesen a labdát, de így se volt rossz próbálkozás.
-Ha a kapu felé még egy kaput emeltek volna, úgy hiszem még úgy is fölé ment volna.
+Gól! $CSAPATNEV $NEV nevű játékosa betalállt a hálóba a mérkőzés $IDO. percében.
+;
+MissLongShot
+$NEV lő! Óóóha... Az előző sokkal jobban sikerült neki.
+A kapus nincs a kapuban, mostmár $NEV egyetlen feladata a kapu eltalálása! $NEV egy igazi balfék! Hogy lehet ekkorát hibázni?
+Ha a kapu felé még egy kaput emeltek volna, úgy hiszem $NEV lövése még úgy is fölé ment volna.
 A mindenit! Nemcsak, hogy kivédte, meg is fogta.
-
-#Nagy Helyzet Megakadályozása
+$NEV Jól eltalálta a kapust, bár nem hiszem, hogy ez lett volna a célja.
+;
+Corner
+Nem találta el tökéletesen a labdát, de így se volt rossz próbálkozás. Végül szögletre megy ki a laszti.
 Az ilyen megmozdulások után azt hiszem, ennek a játékosnak csapattársai szobrot emelnek majd.
+;
+NoBigChance
 Jó helyen volt, jó időben. Ennyit a támadásról egyelőre
 Ejha! $NEV Megszerzi a labdát, pont jókor.
 Ezzel a szereléssel megakasztotta a támadást.
 Ügyesen akasztották meg a támadást.
 $NEV Jól eltalálta a kapust, bár nem hiszem, hogy ez lett volna a célja.
-
-#SárgaLap
+;
+YellowCardChance
 $NEV elképesztően agresszívan támadta a labdát, de még az ellenfél játoksát is. Ebből sárga lap lesz.
 $NEV csúnyán odarúgott ellenfelének. Csodálkoznék, ha ez nem érne lapot, de vajon milyen színű lesz? Sárga!
 Csúnya megmozdulás $NEV részéről. Ez sárga lapot fog érni!
-
-#PirosLap
-$NEV csúnyán odarúgott ellenfelének. Csodálkoznék, ha ez nem érne lapot, de vajon milyen színű lesz? Sárga!
+;
+RedCardChance
+$NEV csúnyán odarúgott ellenfelének. Csodálkoznék, ha ez nem érne lapot, de vajon milyen színű lesz? Piros!
 $NEV megsértette a fairplay $RAND. szabályát, ezért ki kell állítani. Nagy baki ez a csapatának.
-$NEV 
-
-
-
-
+;
+Penalty
+Vajon mi fog történni?
