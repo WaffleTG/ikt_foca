@@ -53,7 +53,7 @@ def Load(slot:int):
         currentSS=slot
         return "Sikeres Betöltés"
     except FileNotFoundError:
-        f = open(f"{SaveFileRoute}save{slot}.save{slot}.save", "w", encoding="utf-8")
+        f = open(f"{SaveFileRoute}save{slot}.save{slot}", "w", encoding="utf-8")
         f.write(" ")
         f.close()
         currentSS=slot
@@ -93,5 +93,9 @@ def OnStart(Message=""):
             f.write(f"{now}{Message}\n")
 def GenerateRandName():
     with open("Datafiles/Referees.txt", "r", encoding="utf-8") as f:
-        return random.choice(list(f.readlines())).split(' ')[0]
+        lines = list(f.readlines())
+        return f"{random.choice(lines).strip().split(' ')[random.randint(0,1)]} {random.choice(lines).strip().split(' ')[random.randint(0,1)]}"
+
+def GetTeamIndexByName(teamName: str):
+    return list(Teams.keys()).index(teamName)
 

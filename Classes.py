@@ -59,13 +59,13 @@ class Team:
         attOvr = 0
         keepOvr = 0
         self.SimulationId = SimId
-
+        self.GetActivePlayers()
         try:
             keepOvr += self.Players["GK"].Stats["GoalKeeping"] * self.getTeamWork() / 99
         except KeyError:
             #Team Doesn't have a keeper (probably need a messagebox)
             pass
-        for key, player in self.Players.items():
+        for key, player in self.ActivePlayers.items():
             if "B" in key:
                 print(player.Overall)
                 defOvr += player.Overall*self.getTeamWork()/50/4

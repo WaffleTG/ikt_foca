@@ -4,7 +4,7 @@ import tkinter.messagebox as tkm
 import customtkinter as ctk
 from Data import Teams, Formations, PosCords, LastTeam, currentSS, GameModes, ChanceCountModes, TacticsKeys
 from PIL import Image, ImageTk
-from OtherFunctions import Save, Load, FormatPosition, OnStart, GenerateRandName
+from OtherFunctions import Save, Load, FormatPosition, OnStart, GenerateRandName, GetTeamIndexByName
 from Classes import Player, Team, Chance, Ref
 import webbrowser
 import copy
@@ -16,7 +16,6 @@ ctk.set_default_color_theme("green")
 class GUI(ctk.CTk):
     def __init__(self) -> None:
         super().__init__()
-
         self.ButtonFont = ('Helvetica', 26, 'bold')
         self.EntryFont = ('Helvetica', 20, 'bold')
         self.HeaderFont = ('Helvetica', 30, 'bold')
@@ -25,7 +24,7 @@ class GUI(ctk.CTk):
         self.FormationFont = ('Helvetica', 16, 'bold')
         
         icon1 = tk.PhotoImage(file = 'Images/dice.png')
-        self.iconphoto(False,icon1)
+        self.iconphoto(True,icon1)
         
 
         self.SimNumFont = ('Helvetica', 100, 'bold')
@@ -114,7 +113,6 @@ class GUI(ctk.CTk):
         # 🎲⚅
     def AboutClick(self):
         webbrowser.open("https://google.com/")
-
     def GameVsAi(self):
         t1 = time.perf_counter()
         if len(Teams) == 0:
@@ -211,6 +209,10 @@ class GUI(ctk.CTk):
     def UpdateLengthSlider(self, *args):
         self.GameLengthLabel.configure(text=f"Meccs Hossza: {args[0]:.0f} Perc")
     def UpdateLabels(self, *args):
+        team1 = Teams[self.team1Var.get()]
+        team2 = Teams[self.team2Var.get()]
+        team1.SetStats(GetTeamIndexByName(team1.Name))
+        team2.SetStats(GetTeamIndexByName(team2.Name))
         if args[1] == 0:
             self.Att1Label.configure(text=f"Támadás: {Teams[self.team1Var.get()].AttOverall:.0f}")
             self.Mid1Label.configure(text=f"Középpálya: {Teams[self.team1Var.get()].MidOverall:.0f}")
@@ -664,7 +666,7 @@ class GUI(ctk.CTk):
                     newkey = FormatPosition(random.choice(list(PosCords.keys())))
                 player = self.RandomisePlayerStats(newkey, True)
                 self.ActiveTeam.Players.setdefault(key, player)
-                self.NameVariables[key].set(player.Name)
+                self.NameVariables[key].set(player.Name.strip().split()[0])
                 self.TacticsVars =  {key:ctk.IntVar(value=val) for key,val in self.ActiveTeam.Tactics.items()}
             try:
                 self.FormationVar.set(self.ActiveTeam.Formation)
@@ -683,7 +685,7 @@ class GUI(ctk.CTk):
             try:
                 print(self.ActiveTeam.Players)
                 for key, val in self.ActiveTeam.Players.items():
-                    self.NameVariables[key] = ctk.StringVar(value=val.Name)
+                    self.NameVariables[key] = ctk.StringVar(value=val.Name.strip().split()[0])
             except AttributeError:
                 pass
             if mode == "add":
@@ -814,12 +816,12 @@ class GUI(ctk.CTk):
                     TmpPlayer2 = self.ActiveTeam.Players[W2Pos]
                     self.ActiveTeam.Players[W2Pos] = self.ActiveTeam.Players[W1Pos] 
                     self.ActiveTeam.Players[W1Pos] = TmpPlayer2
-                    self.NameVariables[W1Pos].set(self.ActiveTeam.Players[W1Pos].Name)
-                    self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name)
+                    self.NameVariables[W1Pos].set(self.ActiveTeam.Players[W1Pos].Name.strip().split()[0])
+                    self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name.strip().split()[0])
                 else:
                     self.ActiveTeam.Players.setdefault(W2Pos, self.ActiveTeam.Players[W1Pos])
                     self.ActiveTeam.Players.pop(W1Pos)
-                    self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name) 
+                    self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name.strip().split()[0]) 
                     self.NameVariables[W1Pos].set(W1Pos)
         except AttributeError:
             pass
