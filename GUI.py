@@ -24,7 +24,6 @@ class GUI(ctk.CTk):
         self.NormalFont = ('Helvetica', 24, 'bold')
         self.FormationFont = ('Helvetica', 16, 'bold')
         
-        icon = (ImageTk.PhotoImage(Image.open("Images/dice.png"), size=(40, 40)))
         icon1 = tk.PhotoImage(file = 'Images/dice.png')
         self.iconphoto(False,icon1)
         
@@ -37,6 +36,20 @@ class GUI(ctk.CTk):
         self.resizable(False, False)
         self.StartScreen()            
         self.bind_class('Entry', '<Control-BackSpace>', self.entry_ctrl_bs)
+        self.protocol("WM_DELETE_WINDOW", self.OnClose)
+    def OnClose(self):
+        answer = tkm.askyesnocancel(title="Kilépés", message="Szeretnéd menteni a csapatokat?")
+        match answer:
+            case True:
+                Save(currentSS)
+            case False:
+                pass
+            case _:
+                return
+            
+            
+        self.destroy()
+        print(answer)
     def clearWindow(self):
         for widget in self.winfo_children():
             widget.destroy()
@@ -92,6 +105,12 @@ class GUI(ctk.CTk):
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="About", font=self.ButtonFont, command=self.AboutClick)
         self.BackBtn.pack(side=tk.BOTTOM, padx=20, anchor="w", pady=10)
         self.button_image = ctk.CTkImage(Image.open("Images/dice.png"), size=(40, 40))
+        for i,team in enumerate(Teams.values()):
+            print(f"Team {i} Name: {team.Name}")
+        try:
+            print(f"ActiveTeamName: {self.ActiveTeam.Name}")
+        except:
+            pass
         # 🎲⚅
     def AboutClick(self):
         webbrowser.open("https://google.com/")
@@ -108,18 +127,22 @@ class GUI(ctk.CTk):
             self.columnconfigure((0,1,2,3), weight=1)
             self.rowconfigure((0,1,2,3,4,5), weight=0)
             try:
-                self.team1Var.set(self.ActiveTeam.Name)
+                if self.ActiveTeam.Name in Teams.keys():
+                    self.team1Var.set(self.ActiveTeam.Name)
+                else:
+                    self.team1Var = ctk.StringVar(value=Teams[list(Teams.keys())[0]].Name)
             except AttributeError:
                 self.team1Var = ctk.StringVar(value=Teams[list(Teams.keys())[0]].Name)
             
             self.team2Var = ctk.StringVar(value=Teams[list(Teams.keys())[0]].Name)
             
-            self.gameModeVar = ctk.StringVar(value=GameModes[0])
+            # self.gameModeVar = ctk.StringVar(value=GameModes[0])
             self.ChanceCountVar = ctk.IntVar(value=10)
             self.GameLengthVar = ctk.IntVar(value=90)
             if len(Teams) > 1:
                 self.team2Var.set(Teams[list(Teams.keys())[1]].Name)
             #BugFix 1: Amikor bemész a csapat hozzáadásába, utána meg a ide, akkor keyError
+            print(self.team1Var.get(), self.team2Var.get())
             Teams[self.team1Var.get()].SetStats(1)
             Teams[self.team2Var.get()].SetStats(2)
             #1.Sor
@@ -128,8 +151,8 @@ class GUI(ctk.CTk):
             
             #2.Sor
             self.Team1Option = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.team1Var)
-            self.Team1Option.grid(column=1, row=1, pady=20)
-            self.Team2Option = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.team2Var).grid(column=2, row=1, pady=20)
+            self.Team1Option.grid(column=1, row=1, pady=20, padx=(15,0))
+            self.Team2Option = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(Teams.keys()), variable=self.team2Var).grid(column=2, row=1, pady=20, padx=(15,0))
             self.Rand1Button = ctk.CTkButton(self, 40, 40,image=self.button_image,text="",   command=lambda: self.RandomiseTeam(0)).grid(column=0, row=1, sticky="e")
             self.Rand2Button = ctk.CTkButton(self, 40, 40,image=self.button_image,text="" ,  command=lambda: self.RandomiseTeam(1)).grid(column=3, row=1, sticky="w")
             #3.Sor
@@ -157,11 +180,11 @@ class GUI(ctk.CTk):
             self.team2Var.trace("w", lambda *args: self.UpdateLabels(args, 1))   
 
             #7-8.Sor
-            self.RefereeChoiceLabel = ctk.CTkLabel(self, font=self.EntryFont, text="Bíró").grid(column=1, row=6, pady=(20,0), sticky="w", padx=(60,0))
-            self.ChanceCountChoiceLabel = ctk.CTkLabel(self, font=self.EntryFont, text="Helyzetek Száma").grid(column=2, row=6, pady=(20,0), sticky="w", padx=(60,0))
+            self.RefereeChoiceLabel = ctk.CTkLabel(self, font=self.EntryFont, text="Bíró").grid(column=1, row=6, pady=(20,0), sticky="w", padx=(55,0))
+            self.ChanceCountChoiceLabel = ctk.CTkLabel(self, font=self.EntryFont, text="Helyzetek Száma").grid(column=2, row=6, pady=(20,0), sticky="w", padx=(55,0))
             
-            self.RefereeChoice = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=referees, variable=self.RefeereVar).grid(column=1, row=7, pady=(0,30))
-            self.ChanceCountChoice = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(ChanceCountModes.keys()), command=self.UpdateChanceCount).grid(column=2, row=7, pady=(0,30))
+            self.RefereeChoice = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=referees, variable=self.RefeereVar).grid(column=1, row=7, pady=(0,30), padx=(15,0))
+            self.ChanceCountChoice = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont, dropdown_font=self.EntryFont, values=list(ChanceCountModes.keys()), command=self.UpdateChanceCount).grid(column=2, row=7, pady=(0,30), padx=(15,0))
             #9-10.Sor
             self.GameLengthLabel = ctk.CTkLabel(self, font=self.EntryFont, text=f"Meccs Hossza: {self.GameLengthVar.get()} Perc")
             self.GameLengthLabel.grid(row=8,column=1, padx=(0,40))
@@ -525,18 +548,20 @@ class GUI(ctk.CTk):
         #BugFix 2: Amikor bemész a szimulációba, utána ide, akkor blank a formationvar
         self.clearWindow()
         self.TacticsVars = {key: ctk.IntVar(value=50) for key in TacticsKeys}
-        try:
-            self.TeamNameVar = ctk.StringVar(value=self.ActiveTeam.Name)
-            self.FormationVar = ctk.StringVar(value=self.ActiveTeam.Formation)
-            print(self.ActiveTeam.Formation)
-        except AttributeError:
-            self.TeamNameVar = ctk.StringVar()
-            self.FormationVar = ctk.StringVar(value="4-4-2")
+        self.TeamNameVar = ctk.StringVar()
+        self.FormationVar = ctk.StringVar(value="4-4-2")
+        # try:
+        #     self.TeamNameVar = ctk.StringVar(value=self.ActiveTeam.Name)
+        #     self.FormationVar = ctk.StringVar(value=self.ActiveTeam.Formation)
+        # except AttributeError:
+        #     self.TeamNameVar = ctk.StringVar()
+        #     self.FormationVar = ctk.StringVar(value="4-4-2")
+
         if mode == "add":
-            tacs = {}
-            for key in self.TacticsVars.keys():
-                tacs.setdefault(key, 50)
-            self.ActiveTeam = Team("", "", tacs, {})
+            # tacs = {}
+            # for key in self.TacticsVars.keys():
+            #     tacs.setdefault(key, 50)
+            self.ActiveTeam = Team("", "", {key:50 for key in self.TacticsVars.keys()}, {})
         if mode == "edit":
             for key, val in self.ActiveTeam.Tactics.items():
                 print(key, val)
