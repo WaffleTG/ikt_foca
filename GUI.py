@@ -2,7 +2,8 @@ import random
 import tkinter as tk
 import tkinter.messagebox as tkm
 import customtkinter as ctk
-from Data import Teams, Formations, PosCords, LastTeam, currentSS, GameModes, ChanceCountModes, TacticsKeys
+import CTkMessagebox as ctkm
+from Data import Teams, Formations, PosCords, LastTeam, currentSS, ChanceCountModes, TacticsKeys
 from PIL import Image, ImageTk
 from OtherFunctions import Save, Load, FormatPosition, OnStart, GenerateRandName, GetTeamIndexByName
 from Classes import Player, Team, Chance, Ref
@@ -14,8 +15,9 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 
 class GUI(ctk.CTk):
-    def __init__(self) -> None:
+    def __init__(self, mode="") -> None:
         super().__init__()
+        self.mode = mode
         self.ButtonFont = ('Helvetica', 26, 'bold')
         self.EntryFont = ('Helvetica', 20, 'bold')
         self.HeaderFont = ('Helvetica', 30, 'bold')
@@ -25,7 +27,6 @@ class GUI(ctk.CTk):
         
         icon1 = tk.PhotoImage(file = 'Images/dice.png')
         self.iconphoto(True,icon1)
-        
 
         self.SimNumFont = ('Helvetica', 100, 'bold')
         self.SimTeamFont = ('Helvetica', 36, 'bold')
@@ -37,18 +38,20 @@ class GUI(ctk.CTk):
         self.bind_class('Entry', '<Control-BackSpace>', self.entry_ctrl_bs)
         self.protocol("WM_DELETE_WINDOW", self.OnClose)
     def OnClose(self):
-        answer = tkm.askyesnocancel(title="Kilépés", message="Szeretnéd menteni a csapatokat?")
-        match answer:
-            case True:
-                Save(currentSS)
-            case False:
-                pass
-            case _:
-                return
+        if self.mode != "Dev":
+            msgBox = ctkm.CTkMessagebox(title="Kilépés", message="Szeretnéd menteni a csapatokat?", option_1="Igen", option_2="Nem", option_3="Mégsem")
+            # answer = tkm.askyesnocancel(title="Kilépés", message="Szeretnéd menteni a csapatokat?")
+            
+            match msgBox.get():
+                case "Igen":
+                    Save(currentSS)
+                case "Nem":
+                    pass
+                case _:
+                    return
             
             
         self.destroy()
-        print(answer)
     def clearWindow(self):
         for widget in self.winfo_children():
             widget.destroy()
@@ -110,6 +113,7 @@ class GUI(ctk.CTk):
             print(f"ActiveTeamName: {self.ActiveTeam.Name}")
         except:
             pass
+        
         # 🎲⚅
     def AboutClick(self):
         webbrowser.open("https://google.com/")
@@ -242,7 +246,7 @@ class GUI(ctk.CTk):
             self.timeVar = ctk.IntVar(value=0)
             self.ChancesVar = ctk.StringVar(value="0 - 0")
             self.YellowCardVar = ctk.StringVar(value="0 - 0")
-        self.PossesionVar = ctk.StringVar(value=self.GeneratePosVar(team1, team2))
+            self.PossesionVar = ctk.StringVar(value=self.GeneratePosVar(team1, team2))
         self.columnconfigure((0,1,2,3,4), weight=1)
         self.rowconfigure((0,1,3,4,5,6), weight=0)
         self.rowconfigure(2, weight=0)
@@ -267,11 +271,12 @@ class GUI(ctk.CTk):
         
         #negyedik sor
         self.StartButton = ctk.CTkButton(self, 200,40, text="Szimuláció indítása", font=self.EntryFont, command=lambda: self.StartSim(team1,team2, ChanceCount, MatchLength, self.timeVar.get()))
-        self.StartButton.grid(column=0, row=3, pady=20, padx=(60,0))
+        self.StartButton.grid(column=0, row=3, pady=20, padx=(80,0))
         self.StopButton = ctk.CTkButton(self, 200,40, text="Szimuláció Megállítása", font=self.EntryFont, command=self.StopSim, state="disabled")
         self.StopButton.grid(column=1, row=3, pady=20)
-        
-            
+        self.TacticsChangeButton = ctk.CTkButton(self, 200,40, text="Taktika Szerkesztése", font=self.EntryFont, command=lambda:self.addBtnClick("ingame", gameArgs={"team1":team1, "team2":team2, "ChanceCount": ChanceCount, "MatchLength": MatchLength}))
+        self.TacticsChangeButton.grid(column=2, row=3, pady=20)
+        self.ActiveTeam = team1
         #Simulation
     def tksleep(self, time:float):
         self.after(int(time*1000), self.quit)
@@ -288,25 +293,30 @@ class GUI(ctk.CTk):
                     #Possession Chance On Start
                     self.timeVar.set(i)
                     try:
-                        PosAmount = random.randint(1, int((self.timeVar.get()-self.stops[-1])/2))
-                    except IndexError:
-                        
-                        PosAmount = random.randint(1, 4)
+                        PosAmount = random.randint(0, i % 6)
                     except ValueError:
-                        PosAmount = random.randint(1, int((self.timeVar.get()-self.stops[-1])*2))
+                        PosAmount = random.randint(0, 3)
+                    # try:
+                    #     PosAmount = random.randint(1, int((self.timeVar.get()-self.stops[-1])/2))
+                    # except IndexError:
+                    #     print("indexerror")
+                    #     PosAmount = random.randint(1, 4)
+                    # except ValueError:
+                    #     PosAmount = random.randint(1, int((self.timeVar.get()-self.stops[-1])*2))
                     randNum = random.randint(0, round((team1.MidOverall+team2.Overall)*100))
-                    
-                    
-                    if (randNum < team2.MidOverall * int(self.PossesionVar.get()[0:2]) and int(self.PossesionVar.get()[0:2]) > 20) or int(self.PossesionVar.get()[-3:-1]) < 20 :
+                    print(PosAmount)
+                
+                    if (randNum < team2.MidOverall * int(self.PossesionVar.get()[0:2]) and int(self.PossesionVar.get()[0:2]) > 30) or int(self.PossesionVar.get()[-3:-1]) < 30 :
                         # print(randNum,team2.MidOverall * int(self.PossesionVar.get()[0:2]))
                         self.PossesionVar.set(f"{int(self.PossesionVar.get()[0:2])-PosAmount}% - {int(self.PossesionVar.get()[-3:-1]) + PosAmount}%")
                     else:
                         self.PossesionVar.set(f"{int(self.PossesionVar.get()[0:2]) + PosAmount}% - {int(self.PossesionVar.get()[-3:-1]) - PosAmount}%")
+                    
+
                     if i in self.chances.keys():
                         
                         #2023.02.27 Az ezalatti sorban talalhato if mindig igaz, ha a két csapatnak ugyanaz a neve(minden csapatnak kell egy simulationId)
                         if self.chances[i].Team.SimulationId == team1.SimulationId:
-                            
                             
                             if self.chances[i].ChanceType == "Goal":
                                 self.ScoreList[0] += 1
@@ -317,6 +327,15 @@ class GUI(ctk.CTk):
                                 pass
                             elif self.chances[i].ChanceType == "OffsideChance":
                                 pass
+                            elif self.chances[i].ChanceType == "Penalty":
+                                self.StopSim()
+                                if self.Penalty(Taker=self.GenerateChancePlayerByAttribute(team1, "Attacking"), Keeper=team2.Players["GK"]):
+                                    self.ScoreList[0] += 1
+                                    self.ChancesVar.set(f"{int(self.ChancesVar.get()[0]) + 1} - {self.ChancesVar.get()[-1]}")
+                                    self.chances[i].ChanceType = "PenaltyGoal"
+                                else:
+                                    self.chances[i].ChanceType = "PenaltyMiss"
+                                self.StartSim(team1, team2, ChanceCount, MatchLength, Begin)
                             else:
                                 self.ChancesVar.set(f"{int(self.ChancesVar.get()[0]) + 1} - {self.ChancesVar.get()[-1]}")
                         else:
@@ -330,9 +349,19 @@ class GUI(ctk.CTk):
                                 pass
                             elif self.chances[i].ChanceType == "OffsideChance":
                                 pass
+                            elif self.chances[i].ChanceType == "Penalty":
+                                self.StopSim()
+                                if self.Penalty(Taker=self.GenerateChancePlayerByAttribute(team2, "Attacking"), Keeper=team1.Players["GK"], Att=False):
+                                    self.ChancesVar.set(f"{self.ChancesVar.get()[0]} - {int(self.ChancesVar.get()[-1]) + 1}")
+                                    self.ScoreList[-1] += 1
+                                    self.chances[i].ChanceType = "PenaltyGoal"
+                                    
+                                else:
+                                    self.chances[i].ChanceType = "PenaltyMiss"
+                                self.StartSim(team1, team2, ChanceCount, MatchLength, Begin)
                             else:
                                 self.ChancesVar.set(f"{self.ChancesVar.get()[0]} - {int(self.ChancesVar.get()[-1]) + 1}")
-                            
+                        self.chances[i].GenerateComm()
                         self.SimulationCommentator(self.chances[i])
                         self.tksleep(1)
                         self.chances = self.GenerateSimulation(team1, team2, ChanceCount, MatchLength)[0]
@@ -346,7 +375,27 @@ class GUI(ctk.CTk):
                 self.timeVar.set(i)
                 self.SimulationCommentator(f"Félidő. A Játékosok {self.Score.get()} Állással mennek a szünetre.")
                 self.StopSim()
-    def SimulationCommentator(self, chance):
+    def Penalty(self,Taker:Player, Keeper:Player,Att:bool=True):
+        if Att:
+            mess = f"Tizenegyest rúg a csapatod! Döntsd el a játékos merre rúgja!"
+        else:
+            mess = f"Az ellenfél tizenegyest rúg! Dönstd el merre vetődjön a kapusod"
+        options = ["Jobbra","Középre","Balra"] 
+        msg = ctkm.CTkMessagebox(title="Büntető", message=mess,
+            icon="warning", option_1=options[0], option_2=options[1], option_3=options[2])
+        randSide = random.choice(options)
+        #1. Gólesély 2.Védésesély
+        Chances = [0,0]
+        Chances[0] += Taker.Stats["Attacking"]
+        Chances[1] += Keeper.Stats["GoalKeeping"]
+        if randSide == msg:
+            Chances[1] *= 2.5        
+        else:
+            Chances[0] *= 1.5
+        if random.choices(Chances, Chances, k=1)[0] == Chances[0]:
+            return True
+        return False
+    def SimulationCommentator(self, chance:Chance):
         self.CommentaryVar.set("")
         try:
             lineLen = 0
@@ -394,7 +443,15 @@ class GUI(ctk.CTk):
         rand2 = random.randint(0, int((ovr1 + ovr2)/(ovr1/ovr2)))
         ovr1 += rand1
         ovr2 += rand2
-        self.PossesionVar = ctk.StringVar(value=f"{ovr1 / ((ovr1 + ovr2)/100):.0f}% - {ovr2 / ((ovr1 + ovr2)/100):.0f}%") 
+        Posses = [ovr1 / ((ovr1 + ovr2)/100), ovr2 / ((ovr1 + ovr2)/100)]
+        if Posses[0] < 20:
+            Posses[0] += 20
+            Posses[1] -= 20
+        elif Posses[1] < 20:
+            Posses[1] += 20
+            Posses[0] -= 20
+        self.PossesionVar = ctk.StringVar(value=f"{Posses[0]:.0f}% - {Posses[1]:.0f}%") 
+        print(self.PossesionVar.get())
         return self.PossesionVar.get()
 
     def GenerateSimulation(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
@@ -496,7 +553,6 @@ class GUI(ctk.CTk):
 
             print(ChanceType, ChancePlayer.Name, ChancePlayer.Position)
             Chance1 = Chance(ChanceTime, AttTeam, ChanceType, ChancePlayer)
-            Chance1.GenerateComm()
             Chances.setdefault(ChanceTime, Chance1)
         golok = [0,0]
         for x in Chances.values():
@@ -546,7 +602,7 @@ class GUI(ctk.CTk):
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.StartScreen)
         self.BackBtn.pack(side=tk.BOTTOM, padx=20, anchor="w", pady=10)
 
-    def addBtnClick(self, mode):
+    def addBtnClick(self, mode, gameArgs:dict = {}):
         #BugFix 2: Amikor bemész a szimulációba, utána ide, akkor blank a formationvar
         self.clearWindow()
         self.TacticsVars = {key: ctk.IntVar(value=50) for key in TacticsKeys}
@@ -564,13 +620,15 @@ class GUI(ctk.CTk):
             # for key in self.TacticsVars.keys():
             #     tacs.setdefault(key, 50)
             self.ActiveTeam = Team("", "", {key:50 for key in self.TacticsVars.keys()}, {})
-        if mode == "edit":
+        if mode == "edit" or mode =="ingame":
+            print("edit")
             for key, val in self.ActiveTeam.Tactics.items():
                 print(key, val)
                 self.TacticsVars[key].set(val)
             self.TeamNameVar.set(self.ActiveTeam.Name)
             self.FormationVar.set(self.ActiveTeam.Formation)
             print("EditMode")
+        
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
@@ -588,13 +646,15 @@ class GUI(ctk.CTk):
         self.FormationLabel = ctk.CTkLabel(self, text="Felállás", font=self.EntryFont).grid(row=3, column=0, padx=(xPadding,0),sticky="w", pady=(10,0))
         self.FormationOption = ctk.CTkOptionMenu(self, width=280, height=40, font=self.EntryFont,dropdown_font=self.EntryFont, values=Formations, variable=self.FormationVar)
         self.FormationOption.grid(row=4, column=0, padx=(xPadding,0), sticky="w")
+        print(self.FormationVar.get())
         #Might need this
         # if hasattr(self, "Tactics"):
         #     self.FormationOption.set(self.ActiveTeam.Formation)
         #     print(self.ActiveTeam.Formation)
         # else:
         #     self.FormationOption.set("4-4-2")
-        self.AddPlayerButton = ctk.CTkButton(self,text="Csapat Szerkesztése",width=280, height=40, font=self.EntryFont, command=lambda:[self.TeamFormationScreenBtn(mode)]).grid(row=5, column=0,rowspan=2, padx=(xPadding,0), sticky="w", pady=(20,0))
+        self.AddPlayerButton = ctk.CTkButton(self,text="Csapat Szerkesztése",width=280, height=40, font=self.EntryFont, command=lambda:[self.TeamFormationScreenBtn(mode)])
+        self.AddPlayerButton.grid(row=5, column=0,rowspan=2, padx=(xPadding,0), sticky="w", pady=(20,0))
 
         self.TacticsLabel = ctk.CTkLabel(self, text="Taktika", font=self.HeaderFont).grid(row=1, column=1, columnspan=4)
         
@@ -635,9 +695,12 @@ class GUI(ctk.CTk):
         self.ShootRateSlider = ctk.CTkSlider(self, width=200, height=26,from_=0, to=100, number_of_steps=100, variable=self.TacticsVars["Shootrate"]).grid(row=10, column=4, sticky="w", padx=(0,40))
 
         self.GenerateRandomTactics = ctk.CTkButton(self, 200, 40, text="Random Taktika Generálása", font=self.ButtonFont, command=self.RandomiseTacitcs).grid(row=11, column=1,columnspan=3, sticky="s", padx=xPadding)
-        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.EditBtnClick).grid(row=11, column=0, sticky="w",pady=(127,0), padx=xPadding)
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=self.EditBtnClick)
+        self.BackBtn.grid(row=11, column=0, sticky="w",pady=(127,0), padx=xPadding)
         self.SaveTeam = ctk.CTkButton(self, 120, 40, text="Mentés", font=self.ButtonFont, command=self.SaveActiveTeam).grid(row=11, column=4, sticky="sw", padx=xPadding)
-
+        if mode == "ingame":
+            self.BackBtn.configure(command=lambda:self.SimulationScreen(gameArgs["team1"], gameArgs["team2"], gameArgs["ChanceCount"], MatchLength=gameArgs["MatchLength"], firstTime=False))
+            self.AddPlayerButton.configure(command=lambda:self.TeamFormationScreenBtn(mode, gameArgs))
     def GenRandTacs(self):
         tactics = {key: round((random.randint(10,100)/5))*5 for key in TacticsKeys}
         return tactics
@@ -654,7 +717,7 @@ class GUI(ctk.CTk):
         Teams.setdefault(teamName, self.ActiveTeam)
         self.TeamFormationScreenBtn("rand")
     
-    def TeamFormationScreenBtn(self, mode):
+    def TeamFormationScreenBtn(self, mode, gameArgs={}):
         self.clearWindow()
         self.NameVariables = {}
         if mode == "rand":
@@ -675,7 +738,7 @@ class GUI(ctk.CTk):
                 self.FormationVar = ctk.StringVar(value=self.ActiveTeam.Formation)
                 self.TeamNameVar = ctk.StringVar(value=self.ActiveTeam.Name)
         else:
-            if mode == "edit":
+            if mode == "edit" or mode == "ingame":
                 self.ActiveTeam.Name = self.TeamNameVar.get()
                 pass
             for key, val in self.TacticsVars.items():
@@ -715,7 +778,10 @@ class GUI(ctk.CTk):
 
         self.FormationFrame = ctk.CTkFrame(self, width=700,height=580, fg_color="green")
         self.FormationFrame.grid(row=0, column=2,rowspan=5, sticky="e")
-        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=lambda: self.addBtnClick("edit")).grid(row=3, column=0, sticky="sw", padx=20, pady=(90,0))
+        self.BackBtn = ctk.CTkButton(self, 120, 40, text="Vissza", font=self.ButtonFont, command=lambda: self.addBtnClick("edit"))
+        self.BackBtn.grid(row=3, column=0, sticky="sw", padx=20, pady=(90,0))
+        if mode == "ingame":
+            self.BackBtn.configure(command=lambda:self.addBtnClick(mode, gameArgs))
         self.GKLabel = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["GK"], font=self.FormationFont, fg_color=StarterLabelBgColor, bg_color=StarterLabelBgColor, cursor=self.LabelCursor)
         self.GKLabel.place(x=PosCords["GK"][0], y=PosCords["GK"][1])
         self.CB1Label = ctk.CTkLabel(self.FormationFrame, textvariable = self.NameVariables["CB1"], font=self.FormationFont, fg_color=StarterLabelBgColor, bg_color=StarterLabelBgColor, cursor=self.LabelCursor).place(x=PosCords["CB1"][0],y=PosCords["CB1"][1])
@@ -779,7 +845,6 @@ class GUI(ctk.CTk):
         
              
     def FormationLabelClick(self, event):
-        #majd try: except attributeError: pass
         try:
             if event.widget.cget('cursor') == self.LabelCursor:
                 print("FormationLabelClick")
@@ -870,7 +935,7 @@ class GUI(ctk.CTk):
         #         self.PlayerPosVar = ctk.StringVar(value=PlayerPositions[-1])
         if self.NameVariables[pos].get() != pos:
             #Edit Player
-            self.PlayerNameVar.set(self.NameVariables[pos].get())
+            self.PlayerNameVar.set(self.ActiveTeam.Players[pos].Name)
             self.CreatedPlayer = self.ActiveTeam.Players[pos]
             self.PlayerPosVar.set(self.CreatedPlayer.Position)
             addBtnText = "Szerkesztés Befejezése"
@@ -1008,7 +1073,7 @@ class GUI(ctk.CTk):
         
     def ChooseTeam(self, action):
         if len(Teams) == 0:
-            tkm.showinfo(title="Nem Lehet Szerkeszteni Csapatot!",message="Nincs egy csapat se elmentve!")
+            ctkm.CTkMessagebox(title="Nem lehet szerkeszteni csapatot!", message="Nincs elmentve egy csapat sem!")
         else:
             self.clearWindow()
             if self.ActiveTeam == None:
@@ -1041,13 +1106,14 @@ class GUI(ctk.CTk):
         # self.ActiveTeam.SetStats(True)
     
     def DeleteTeam(self, name):
-        answer = tkm.askyesno(title="Csapat Törlése", message=f"Biztos vagy benne hogy törölni szeretnék a {name} nevű csapatot?")
-        if answer:
+        msgBox = ctkm.CTkMessagebox(title="Csapat Törlése", message=f"Biztos vagy benne, hogy törölni szeretnéd a {name} nevű csapatot?", option_1="Nem", option_2="Igen", icon="question")
+        # answer = tkm.askyesno(title="Csapat Törlése", message=f"Biztos vagy benne hogy törölni szeretnék a {name} nevű csapatot?")
+        if msgBox.get() == "Igen":
             self.ActiveTeam = Teams[list(Teams.keys())[list(Teams.keys()).index(name)-1]]
             Teams.pop(name)
-            tkm.showwarning(title="Csapat Törölve!",message=f"A {name} nevű csapat törlődött ")
             self.EditBtnClick()
-
+            ctkm.CTkMessagebox(title="Csapat Törölve", message=f"A {name} nevű csapat törölve lett!", icon="check")
+            
     def EditTeam(self, name):
         self.ActiveTeam = Teams[name]
         self.addBtnClick("edit")
@@ -1086,6 +1152,6 @@ class GUI(ctk.CTk):
         return num + 1
 if __name__ == "__main__":
     OnStart(" Development")
-    gui = GUI()
+    gui = GUI("Dev")
     print(Load(1))
     gui.mainloop()
