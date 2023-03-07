@@ -312,12 +312,11 @@ class GUI(ctk.CTk):
                     else:
                         self.PossesionVar.set(f"{int(self.PossesionVar.get()[0:2]) + PosAmount}% - {int(self.PossesionVar.get()[-3:-1]) - PosAmount}%")
                     
-
                     if i in self.chances.keys():
                         
                         #2023.02.27 Az ezalatti sorban talalhato if mindig igaz, ha a két csapatnak ugyanaz a neve(minden csapatnak kell egy simulationId)
                         if self.chances[i].Team.SimulationId == team1.SimulationId:
-                            
+                            self.chances[i].ChanceType = "Penalty"
                             if self.chances[i].ChanceType == "Goal":
                                 self.ScoreList[0] += 1
                                 self.ChancesVar.set(f"{int(self.ChancesVar.get()[0]) + 1} - {self.ChancesVar.get()[-1]}")
@@ -328,18 +327,19 @@ class GUI(ctk.CTk):
                             elif self.chances[i].ChanceType == "OffsideChance":
                                 pass
                             elif self.chances[i].ChanceType == "Penalty":
-                                self.StopSim()
+                                
                                 if self.Penalty(Taker=self.GenerateChancePlayerByAttribute(team1, "Attacking"), Keeper=team2.Players["GK"]):
                                     self.ScoreList[0] += 1
                                     self.ChancesVar.set(f"{int(self.ChancesVar.get()[0]) + 1} - {self.ChancesVar.get()[-1]}")
                                     self.chances[i].ChanceType = "PenaltyGoal"
                                 else:
                                     self.chances[i].ChanceType = "PenaltyMiss"
-                                self.StartSim(team1, team2, ChanceCount, MatchLength, Begin)
+                                self.SimulationCommentator(self.chances[i])
+                                self.StartSim(team1, team2, ChanceCount, MatchLength, self.timeVar.get())
                             else:
                                 self.ChancesVar.set(f"{int(self.ChancesVar.get()[0]) + 1} - {self.ChancesVar.get()[-1]}")
                         else:
-                            
+                            self.chances[i].ChanceType = "Penalty"
                             if self.chances[i].ChanceType == "Goal":
                                 self.ChancesVar.set(f"{self.ChancesVar.get()[0]} - {int(self.ChancesVar.get()[-1]) + 1}")
                                 self.ScoreList[-1] += 1
@@ -358,7 +358,8 @@ class GUI(ctk.CTk):
                                     
                                 else:
                                     self.chances[i].ChanceType = "PenaltyMiss"
-                                self.StartSim(team1, team2, ChanceCount, MatchLength, Begin)
+                                self.SimulationCommentator(self.chances[i])
+                                self.StartSim(team1, team2, ChanceCount, MatchLength, self.timeVar.get())
                             else:
                                 self.ChancesVar.set(f"{self.ChancesVar.get()[0]} - {int(self.ChancesVar.get()[-1]) + 1}")
                         self.chances[i].GenerateComm()
@@ -376,6 +377,7 @@ class GUI(ctk.CTk):
                 self.SimulationCommentator(f"Félidő. A Játékosok {self.Score.get()} Állással mennek a szünetre.")
                 self.StopSim()
     def Penalty(self,Taker:Player, Keeper:Player,Att:bool=True):
+        self.StopSim()
         if Att:
             mess = f"Tizenegyest rúg a csapatod! Döntsd el a játékos merre rúgja!"
         else:
@@ -388,7 +390,8 @@ class GUI(ctk.CTk):
         Chances = [0,0]
         Chances[0] += Taker.Stats["Attacking"]
         Chances[1] += Keeper.Stats["GoalKeeping"]
-        if randSide == msg:
+        Side = msg.get()
+        if randSide == Side:
             Chances[1] *= 2.5        
         else:
             Chances[0] *= 1.5
@@ -1103,6 +1106,7 @@ class GUI(ctk.CTk):
                     self.ActiveTeam = Teams[list(Teams.keys())[0]]
                 self.ChooseButton.configure(command=lambda: self.EditTeam(self.TeamChoiceOption.get()))
                 self.HeadLabel.configure(text="Válaszd ki a csapatot amit szerkeszteni szeretnél")
+
         # self.ActiveTeam.SetStats(True)
     
     def DeleteTeam(self, name):
