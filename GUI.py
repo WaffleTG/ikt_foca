@@ -145,8 +145,8 @@ class GUI(ctk.CTk):
                 self.team2Var.set(Teams[list(Teams.keys())[1]].Name)
             #BugFix 1: Amikor bemész a csapat hozzáadásába, utána meg a ide, akkor keyError
             print(self.team1Var.get(), self.team2Var.get())
-            Teams[self.team1Var.get()].SetStats(1)
-            Teams[self.team2Var.get()].SetStats(2)
+            Teams[self.team1Var.get()].SetStats(0)
+            Teams[self.team2Var.get()].SetStats(1)
             #1.Sor
             self.HeadLabel = ctk.CTkLabel(self,text="Válassz Csapatokat",font=self.HeaderFont).grid(column=0, columnspan=4, row=0, pady=(20,10))
             print(f"1.Sor {time.perf_counter() - t1}")
@@ -238,8 +238,8 @@ class GUI(ctk.CTk):
             self.team2Var.set(Teams[list(Teams.keys())[random.randint(0,len(Teams)-1)]].Name)
     def SimulationScreen(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90,firstTime=True):
         self.Referee = self.Referees[[x.Name for x in self.Referees].index(self.RefeereVar.get())]
-        team1.SetStats(1)
-        team2.SetStats(2)
+        team1.SetStats(0)
+        team2.SetStats(1)
         self.clearWindow()
         if firstTime:
             self.stops = []
@@ -320,62 +320,54 @@ class GUI(ctk.CTk):
                         self.PossesionList[0] += PosAmount
                         self.PossesionList[1] -= PosAmount
                     if i in self.chances.keys():
-                        if self.chances[i].Team.SimulationId == team1.SimulationId:
-                            if self.chances[i].ChanceType == "Goal":
-                                self.ScoreList[0] += 1
-                                self.ChancesList[0] += 1
-                            elif self.chances[i].ChanceType == "YellowCardChance":
-                                self.YellowCardList[0] += 1
-                            elif self.chances[i].ChanceType == "RedCardChance":
-                                self.RedCardList[0] += 1
-                                team1.Players.pop(list(team1.Players.keys())[GetIndexByPlayer(team1, self.chances[i].Player)])
-                                self.RedCard(team1)
-                            elif self.chances[i].ChanceType == "OffsideChance":
+                        chance = self.chances[i]
+                        if chance.Team.SimulationId == team1.SimulationId:
+                            if chance.ChanceType == "Goal":
+                                self.Goal(team1)
+                            elif chance.ChanceType == "YellowCardChance":
+                                self.YellowCard(team1, chance.Player)
+                            elif chance.ChanceType == "RedCardChance":
+                                self.RedCard(team1, chance.Player)
+                            elif chance.ChanceType == "OffsideChance":
                                 self.OffsideList[0] += 1
-                            elif self.chances[i].ChanceType == "Penalty":
+                            elif chance.ChanceType == "Penalty":
                                 self.StopSim(False)
                                 if self.Penalty(Taker=self.GenerateChancePlayerByAttribute(team1, "Attacking"), Keeper=team2.Players["GK"]):
-                                    self.ScoreList[0] += 1
-                                    self.ChancesList[0] += 1
-                                    self.chances[i].ChanceType = "PenaltyGoal"
+                                    self.Goal(team1)
+                                    chance.ChanceType = "PenaltyGoal"
                                 else:
-                                    self.chances[i].ChanceType = "PenaltyMiss"
-                                if "Penalty" not in self.chances[i].ChanceType:
-                           
-                                    self.chances[i].GenerateComm()
-                                    self.SimulationCommentator(self.chances[i])
+                                    chance.ChanceType = "PenaltyMiss"
+                                if "Penalty" not in chance.ChanceType:
+                                    chance.GenerateComm()
+                                    self.SimulationCommentator(chance)
                                 self.StartSim(team1, team2, ChanceCount, MatchLength, self.timeVar.get())
                             else:
                                 self.ChancesList[0] += 1
                         else:
-                            if self.chances[i].ChanceType == "Goal":
-                                self.ChancesList[1] += 1
-                                self.ScoreList[-1] += 1
-                            elif self.chances[i].ChanceType == "YellowCardChance":
-                                self.YellowCardList[1] += 1
-                            elif self.chances[i].ChanceType == "RedCardChance":
-                                self.RedCardList[1] += 1
-                                
-                                self.RedCard(team2)
-                            elif self.chances[i].ChanceType == "OffsideChance":
+                            if chance.ChanceType == "Goal":
+                                self.Goal(team2)
+                            elif chance.ChanceType == "YellowCardChance":
+                                self.YellowCard(team2, chance.Player)
+                            elif chance.ChanceType == "RedCardChance":
+                                self.RedCard(team2, chance.Player)
+                            elif chance.ChanceType == "OffsideChance":
                                 self.OffsideList[1] += 1
-                            elif self.chances[i].ChanceType == "Penalty":
+                            elif chance.ChanceType == "Penalty":
                                 self.StopSim(False)
                                 if self.Penalty(Taker=self.GenerateChancePlayerByAttribute(team2, "Attacking"), Keeper=team1.Players["GK"], Att=False):
-                                    self.ChancesList[1] += 1
-                                    self.ScoreList[-1] += 1
-                                    self.chances[i].ChanceType = "PenaltyGoal"
+                                    self.Goal(team2)
+                                    chance.ChanceType = "PenaltyGoal"
                                 else:
-                                    self.chances[i].ChanceType = "PenaltyMiss"
-                                self.chances[i].GenerateComm()
-                                self.SimulationCommentator(self.chances[i])
+                                    chance.ChanceType = "PenaltyMiss"
+                                chance.GenerateComm()
+                                self.SimulationCommentator(chance)
                                 self.StartSim(team1, team2, ChanceCount, MatchLength, self.timeVar.get())
                             else:
                                 self.ChancesList[1] += 1
                         try:
-                            if "Penalty" not in self.chances[i].ChanceType:
-                                self.chances[i].GenerateComm()
-                                self.SimulationCommentator(self.chances[i])
+                            if "Penalty" not in chance.ChanceType:
+                                chance.GenerateComm()
+                                self.SimulationCommentator(chance)
                         except KeyError:
                             print("KeyError")
                             print(i, self.chances.keys())
@@ -390,6 +382,15 @@ class GUI(ctk.CTk):
                 self.timeVar.set(i)
                 self.SimulationCommentator(f"Félidő. A Játékosok {self.Score.get()} Állással mennek a szünetre.")
                 self.StopSim()
+    def Goal(self, team:Team):
+        self.ChancesList[team.SimulationId] += 1
+        self.ScoreList[team.SimulationId] += 1
+        
+    def YellowCard(self, team:Team, player:Player):
+        if player.YellowCards > 0:
+            self.RedCard(team, player)
+        self.YellowCardList[team.SimulationId] += 1
+        
     def Penalty(self,Taker:Player, Keeper:Player,Att:bool=True):
         self.StopSim(False)
         if Att:
@@ -406,14 +407,15 @@ class GUI(ctk.CTk):
         Chances[1] += Keeper.Stats["GoalKeeping"]
         Side = msg.get()
         if randSide == Side:
-            Chances[1] *= 2.5        
+            Chances[1] *= 2        
         else:
-            Chances[0] *= 1.5
+            Chances[0] *= 8
         if random.choices(Chances, Chances, k=1)[0] == Chances[0]:
             return True
         return False
     def RedCard(self, team:Team, player:Player):
-        team.Players.pop(list(team.Players.keys())[GetIndexByPlayer(team, Player)])
+        team.Players.pop(list(team.Players.keys())[GetIndexByPlayer(team, player)])
+        self.RedCardList[team.SimulationId] += 1
         team.SetStats(team.SimulationId)
         team.GetActivePlayers()
         if len(team.ActivePlayers) <= 6:
@@ -488,8 +490,8 @@ class GUI(ctk.CTk):
     def GenerateSimulation(self, team1: Team, team2: Team, ChanceCount: int=10, MatchLength: int=90):
         team1 = copy.copy(team1)
         team2 = copy.copy(team2)
-        team1.SetStats(1)
-        team2.SetStats(2)
+        team1.SetStats(0)
+        team2.SetStats(1)
         team1.GetActivePlayers()
         team2.GetActivePlayers()
         Chances = {}

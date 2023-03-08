@@ -21,6 +21,7 @@ class Player:
         # self.Teamwork = teamwork
         self.Position = pos
         self.Overall = int((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/5.5)
+        self.YellowCards = 0
         print(self.Overall)
 
 class Team:
