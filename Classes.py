@@ -87,7 +87,7 @@ class Chance:
     def __init__(self, time, team: Team, chanceType:str, player:Player) -> None:
         self.Time = time
         self.Team = team
-        self.Comm = "Kindian"
+        self.Comm = "Commentary Not Set"
         self.ChanceType = chanceType
         self.Player = player
     def GenerateComm(self):

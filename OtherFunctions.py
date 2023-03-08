@@ -99,3 +99,5 @@ def GenerateRandName():
 def GetTeamIndexByName(teamName: str):
     return list(Teams.keys()).index(teamName)
 
+def GetIndexByPlayer(team:Team,player:Player):
+    return list(team.Players.values()).index(player)
