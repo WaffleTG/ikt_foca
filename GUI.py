@@ -9,7 +9,6 @@ from OtherFunctions import Save, Load, FormatPosition, OnStart, GenerateRandName
 from Classes import Player, Team, Chance, Ref
 import webbrowser
 import copy
-import time
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -25,9 +24,6 @@ class GUI(ctk.CTk):
         self.BiggerHeaderFont = ('Helvetica', 42, 'bold')
         self.NormalFont = ('Helvetica', 24, 'bold')
         self.FormationFont = ('Helvetica', 16, 'bold')
-        
-        icon1 = tk.PhotoImage(file = 'Images/dice.png')
-        self.iconphoto(True,icon1)
 
         self.SimNumFont = ('Helvetica', 100, 'bold')
         self.StatFont = ('Helvetica', 70, 'bold')
@@ -107,14 +103,6 @@ class GUI(ctk.CTk):
         self.BackBtn = ctk.CTkButton(self, 120, 40, text="About", font=self.ButtonFont, command=self.AboutClick)
         self.BackBtn.pack(side=tk.BOTTOM, padx=20, anchor="w", pady=10)
         self.button_image = ctk.CTkImage(Image.open("Images/dice.png"), size=(40, 40))
-        # for i,team in enumerate(Teams.values()):
-        #     print(f"Team {i} Name: {team.Name}")
-        # try:
-        #     print(f"ActiveTeamName: {self.ActiveTeam.Name}")
-        # except:
-        #     pass
-        
-        # 🎲⚅
     def AboutClick(self):
         webbrowser.open("https://waffletg.github.io/ikt_foca/")
     def GameVsAi(self):
@@ -235,6 +223,7 @@ class GUI(ctk.CTk):
         self.clearWindow()
         if firstTime:
             self.stops = []
+            self.SubsLeft = ctk.IntVar(value=5)
             self.ScoreList = [0, 0]
             self.speedVar = ctk.IntVar(value=1)
             self.chances = self.GenerateSimulation(team1, team2, ChanceCount, MatchLength)[0] 
@@ -328,6 +317,8 @@ class GUI(ctk.CTk):
                                     chance.GenerateComm()
                                     self.SimulationCommentator(chance)
                                 self.StartSim(team1, team2, ChanceCount, MatchLength, self.timeVar.get())
+                            elif chance.ChanceType == "Injury":
+                                self.Injury(team1, chance.Player)
                             else:
                                 self.ChancesList[0] += 1
                         else:
@@ -349,6 +340,8 @@ class GUI(ctk.CTk):
                                 chance.GenerateComm()
                                 self.SimulationCommentator(chance)
                                 self.StartSim(team1, team2, ChanceCount, MatchLength, self.timeVar.get())
+                            elif chance.ChanceType == "Injury":
+                                self.Injury(team1, chance.Player)
                             else:
                                 self.ChancesList[1] += 1
                         try:
@@ -356,7 +349,7 @@ class GUI(ctk.CTk):
                                 chance.GenerateComm()
                                 self.SimulationCommentator(chance)
                         except KeyError:
-                            print("Line360 Keyerror")
+                            pass
                         self.tksleep(1)
                         self.chances = self.GenerateSimulation(team1, team2, ChanceCount, MatchLength)[0]
                     self.Score.set(f"{self.ScoreList[0]} - {self.ScoreList[1]}")
@@ -368,6 +361,10 @@ class GUI(ctk.CTk):
                 self.timeVar.set(i)
                 self.SimulationCommentator(f"Félidő. A Játékosok {self.Score.get()} Állással mennek a szünetre.")
                 self.StopSim()
+    def Injury(self, team:Team, player:Player):
+        if team.SimulationId == 0:
+            ctkm.CTkMessagebox(self, title="Sérülés", message=f"{player.Name} megsérült. Én lecserélném a helyedben.", icon="warning")
+        player.Fitness = 0
     def Goal(self, team:Team):
         self.ChancesList[team.SimulationId] += 1
         self.ScoreList[team.SimulationId] += 1
@@ -503,7 +500,8 @@ class GUI(ctk.CTk):
                 "YellowCardChance": int(AttTeam.Tactics["Agressivness"] + 10-self.Referee.Patience/10),
                 "RedCardChance": int(AttTeam.Tactics["Agressivness"]/2 + 10-self.Referee.Patience/10),
                 "OffsideChance": int(AttTeam.Tactics["Attackspeed"]/2),
-                "Corner": int(AttTeam.Tactics["Attackspeed"] + AttTeam.Tactics["Attackwidth"]/2)
+                "Corner": int(AttTeam.Tactics["Attackspeed"] + AttTeam.Tactics["Attackwidth"]/2),
+                "Injury": int(DefTeam.Tactics["Agressivness"]/8 + (100-AttTeam.getFitnessOverall())/4)
             }
             ChanceType = list(chanceTypes.keys())[list(chanceTypes.values()).index(random.choices(list(chanceTypes.values()), k=1, weights=list(chanceTypes.values()))[0])]
             match ChanceType:
@@ -554,7 +552,8 @@ class GUI(ctk.CTk):
                             ChanceType = "Penalty"
                     else:
                         ChancePlayer = self.GenerateChancePlayerByAttribute(AttTeam, "Attacking")
-            
+                case "Injury":
+                    ChancePlayer = self.GenerateInjuryPlayer(AttTeam)
             if ChanceType == "Corner":
                 ChancePlayer = self.GenerateChancePlayerByAttribute(AttTeam, "Passing")
                 DefPlayer = self.GenerateChancePlayerByAttribute(DefTeam, "Defending")
@@ -592,6 +591,11 @@ class GUI(ctk.CTk):
             ossz2Golok += golok[1]
 
         print(f"{ossz1Golok/simAmount} - {ossz2Golok/simAmount}")
+
+    def GenerateInjuryPlayer(self, team:Team):
+        ActivePlayers = {key:player.Fitness for key,player in team.ActivePlayers.items()}
+        return team.Players[list(ActivePlayers.keys())[list(ActivePlayers.values()).index(random.choices(list(ActivePlayers.values()), k=1, weights=list(ActivePlayers.values()))[0])]]
+
     def GenerateBigChancePlayer(self, team: Team):
         
         while True:
@@ -702,6 +706,8 @@ class GUI(ctk.CTk):
         if mode == "ingame":
             self.BackBtn.configure(command=lambda:self.SimulationScreen(gameArgs["team1"], gameArgs["team2"], gameArgs["ChanceCount"], MatchLength=gameArgs["MatchLength"], firstTime=False))
             self.AddPlayerButton.configure(command=lambda:self.TeamFormationScreenBtn(mode, gameArgs))
+            gameArgs["team1"].SetStats()
+            gameArgs["team2"].SetStats()
     def GenRandTacs(self):
         tactics = {key: round((random.randint(10,100)/5))*5 for key in TacticsKeys}
         return tactics
@@ -732,6 +738,8 @@ class GUI(ctk.CTk):
         self.FormationFrame.create_oval(336, 86, 344, 94, fill="white", outline="black")
     def TeamFormationScreenBtn(self, mode, gameArgs={}):
         self.clearWindow()
+
+        
         self.NameVariables = {}
         if mode == "rand":
             for pos in PosCords.keys():
@@ -753,7 +761,6 @@ class GUI(ctk.CTk):
         else:
             if mode == "edit" or mode == "ingame":
                 self.ActiveTeam.Name = self.TeamNameVar.get()
-                pass
             for key, val in self.TacticsVars.items():
                 self.ActiveTeam.Tactics[key] = val.get()
             for pos in PosCords.keys():
@@ -853,22 +860,31 @@ class GUI(ctk.CTk):
         self.Sub7Label = ctk.CTkLabel(self.ReserveFrame, textvariable = self.NameVariables["SUB7"], font=self.FormationFont, fg_color=SubLabelBgColor, bg_color=SubLabelBgColor, cursor=self.LabelCursor).place(x=PosCords["SUB7"][0],y=PosCords["SUB7"][1])
         self.Sub8Label = ctk.CTkLabel(self.ReserveFrame, textvariable = self.NameVariables["SUB8"], font=self.FormationFont, fg_color=SubLabelBgColor, bg_color=SubLabelBgColor, cursor=self.LabelCursor).place(x=PosCords["SUB8"][0],y=PosCords["SUB8"][1])
 
-        self.FormationFrame.bind_class('Label', "<Button-1>", self.FormationLabelClick)
-        self.FormationFrame.bind_class('Label', "<Button-3>", self.PlayerEditClick)
+        if mode == "ingame":
+            self.FormationFrame.bind_class("Label", "<Button-1>",lambda event, a="ingame": self.FormationLabelClick(event=event, mode=a))
+            self.SubLeftLabel = ctk.CTkLabel(self, text=f"Cserék: {self.SubsLeft.get()}", font=self.EntryFont)
+            self.SubLeftLabel.grid(row=3, column=1, sticky="sw", pady=(90,0))
+            self.SubsLeft.trace("w", self.UpdateSubsLeft)
+        else:
+            self.FormationFrame.bind_class('Label', "<Button-3>", self.PlayerEditClick)
+            self.FormationFrame.bind_class('Label', "<Button-1>", self.FormationLabelClick)
         
-             
-    def FormationLabelClick(self, event):
+
+    def UpdateSubsLeft(self, *args):
+        self.SubLeftLabel.configure(text=f"Cserék: {self.SubsLeft.get()}")
+    def FormationLabelClick(self, event, mode="add"):
         try:
             if event.widget.cget('cursor') == self.LabelCursor:
                 thisPos = self.GetPlayerPos(event.widget)
-                if self.NameVariables[thisPos].get() == thisPos:
+                
+                if self.NameVariables[thisPos].get() == thisPos and mode == "add":
                     #Insta Create Player
-
                     self.CreatePlayerBtn(thisPos)
                 else:
                     #Bind Click on another player to switch
-
-                    self.FormationFrame.bind_class('Label', '<Button-1>', lambda event, a=event.widget:self.PlayerSwitchByName(event=event, widget1=a), add=False)
+                    
+                    self.FormationFrame.bind_class('Label', '<Button-1>', lambda event, a=event.widget, b=mode:self.PlayerSwitchByName(event=event, widget1=a, mode=b), add=False)
+            
         except AttributeError:
             pass
 
@@ -879,34 +895,46 @@ class GUI(ctk.CTk):
         except AttributeError:
             pass
 
-    def PlayerSwitchByName(self, widget1, event):
-        try:
-            if event.widget.cget('cursor') == self.LabelCursor:
-                widget2 = event.widget
-                if widget2 == widget1:
-                    return
-                self.FormationFrame.bind_class('Label', '<Button-1>', self.FormationLabelClick, add=False)
-                W1Pos = self.GetPlayerPos(widget1)
-                W2Pos = self.GetPlayerPos(widget2)
-                if W2Pos in self.ActiveTeam.Players.keys():
-                    TmpPlayer2 = self.ActiveTeam.Players[W2Pos]
-                    self.ActiveTeam.Players[W2Pos] = self.ActiveTeam.Players[W1Pos] 
-                    self.ActiveTeam.Players[W1Pos] = TmpPlayer2
-                    self.NameVariables[W1Pos].set(self.ActiveTeam.Players[W1Pos].Name.strip().split()[0])
-                    self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name.strip().split()[0])
-                else:
-                    self.ActiveTeam.Players.setdefault(W2Pos, self.ActiveTeam.Players[W1Pos])
-                    self.ActiveTeam.Players.pop(W1Pos)
-                    self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name.strip().split()[0]) 
-                    self.NameVariables[W1Pos].set(W1Pos)
-        except AttributeError:
-            pass
+    def PlayerSwitchByName(self, widget1, event, mode):
+        if mode == "add" or ("RES" not in self.GetPlayerPos(widget1) and self.SubsLeft.get() > 0):
+            try:
+                if event.widget.cget('cursor') == self.LabelCursor:
+                    widget2 = event.widget
+                    W1Pos = self.GetPlayerPos(widget1)
+                    W2Pos = self.GetPlayerPos(widget2)
+                    if widget2 == widget1:
+                        return
+                    elif mode != "add":
+                        if ("SUB" in W1Pos and "SUB" not in W2Pos and "RES" not in W2Pos) or ("SUB" in W2Pos and "SUB" not in W1Pos and "RES" not in W1Pos):
+                            self.SubsLeft.set(self.SubsLeft.get()-1)
+                        self.FormationFrame.bind_class('Label', '<Button-1>', lambda event, a=mode:self.FormationLabelClick(event=event, mode=a), add=False)
+                    else:
+                        self.FormationFrame.bind_class('Label', '<Button-1>', self.FormationLabelClick, add=False)
+                    try:
+                        if W2Pos in self.ActiveTeam.Players.keys():
+                            TmpPlayer2 = self.ActiveTeam.Players[W2Pos]
+                            self.ActiveTeam.Players[W2Pos] = self.ActiveTeam.Players[W1Pos] 
+                            self.ActiveTeam.Players[W1Pos] = TmpPlayer2
+                            self.NameVariables[W1Pos].set(self.ActiveTeam.Players[W1Pos].Name.strip().split()[0])
+                            self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name.strip().split()[0])
+                        else:
+                            self.ActiveTeam.Players.setdefault(W2Pos, self.ActiveTeam.Players[W1Pos])
+                            self.ActiveTeam.Players.pop(W1Pos)
+                            self.NameVariables[W2Pos].set(self.ActiveTeam.Players[W2Pos].Name.strip().split()[0]) 
+                            self.NameVariables[W1Pos].set(W1Pos)
+                    except KeyError:
+                        self.SubsLeft.set(self.SubsLeft.get()+1)
+            except AttributeError:
+                pass
+        elif "RES" in self.GetPlayerPos(widget1):
+            self.FormationFrame.bind_class('Label', '<Button-1>', lambda event, a=mode:self.FormationLabelClick(event=event, mode=a), add=False)
         
     def GetPlayerPos(self, widget):
-        
-        frame = self.nametowidget(self.nametowidget(widget.winfo_parent()).winfo_parent())
-        
-        if id(frame) == id(self.FormationFrame) :
+        try:
+            frame = self.nametowidget(self.nametowidget(widget.winfo_parent()).winfo_parent())
+        except Exception:
+            pass
+        if id(frame) == id(self.FormationFrame):
             xOffest = self.GKLabel.winfo_rootx() - PosCords["GK"][0]
             yOffset = self.GKLabel.winfo_rooty() - PosCords["GK"][1] + 4
         elif id(frame) == id(self.ReserveFrame):
@@ -1145,5 +1173,5 @@ class GUI(ctk.CTk):
 if __name__ == "__main__":
     OnStart(" Development")
     gui = GUI("Dev")
-    print(Load(1))
+    Load(1)
     gui.mainloop()

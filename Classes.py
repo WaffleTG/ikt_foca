@@ -23,6 +23,7 @@ class Player:
         self.Position = pos
         self.SetOverall()
         self.YellowCards = 0
+        self.Goals = 0
     def SetOverall(self):
         self.Overall = int(((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/550)*self.Fitness)
 class Team:
@@ -49,8 +50,12 @@ class Team:
         else:
             self.TeamWorkOverall = 0
         return self.TeamWorkOverall
-    def getOverall(self):
-        pass
+    def getFitnessOverall(self):
+        fitness = 0
+        self.GetActivePlayers()
+        for player in self.ActivePlayers.values():
+            fitness += player.Fitness
+        return fitness/len(self.ActivePlayers.values())
     def GetActivePlayers(self):
         activePlayers = {key:player for key,player in self.Players.items() if "SUB" not in key and "RES" not in key}
         self.ActivePlayers = activePlayers.copy()
@@ -65,7 +70,6 @@ class Team:
         try:
             keepOvr += self.Players["GK"].Stats["GoalKeeping"] * self.getTeamWork() / 99
         except KeyError:
-            #Team Doesn't have a keeper (probably need a messagebox)
             pass
         for key, player in self.ActivePlayers.items():
             if "B" in key:
@@ -99,7 +103,7 @@ class Chance:
         self.Player = player
     def GenerateComm(self):
         self.Team.GetActivePlayers()
-        self.Comm = random.choice(Commentaries[self.ChanceType]).replace("$NEV", self.Player.Name.split()[0]).replace("$IDO", str(self.Time)).replace("$CSAPATNEV", self.Team.Name).replace("$RANDPLAYER", random.choice(list(self.Team.ActivePlayers.values())).Name).replace("$RAND", str(random.randint(1,200)))
+        self.Comm = random.choice(Commentaries[self.ChanceType]).replace("$NEV", self.Player.Name.split()[0]).replace("$IDO", str(self.Time)).replace("$CSAPATNEV", self.Team.Name).replace("$RANDPLAYER", random.choice(list(self.Team.ActivePlayers.values())).Name).replace("$RAND", str(random.randint(1,200))).replace("$GOLOKSZAMA", str(self.Player.Goals)).replace("$GOALKEEPERNAME",self.Team.Players.get("GK", random.choice(list(self.Team.Players.values()))).Name)
         
 class Ref:
     def __init__(self, patience, mistakes, name) -> None:

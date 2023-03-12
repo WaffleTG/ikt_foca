@@ -14,11 +14,13 @@ $NEV egy igazi magyar géniusz, kicselezte az összes védőt, majd a kapuba tal
 $RANDPLAYER eltalálta a kapufát! A labda odapattant $NEV elé. Micsoda szerencse! $NEV lő! GÓÓÓL!
 $NEV lövése csak akkor menne be, ha a kaput odébb tolnák. Micsoda szerencse, hogy pont ez történt. $NEV gólt szerez!
 $NEV egész jól eltalálta a labdát, de még a kaput is! Ezt gólnak hívják!
+$NEV egy kiugratás után egy az egy ellen megy a kapus ellen. Ezt nem lehet elrontani. GÓL! A visszajátszásból látszik, hogy lesről indult, de a játékvezető mégis megadja. Az ellenfél edzője a kispadot üti.
 A szurkolók már beintenék a lest, de a játék megy tovább. $NEV, EZ HELYZET! $NEV HATALMAS gólt szerez, de vajon mit mond a VAR? GÓÓL!
 Hatalmas lövés! GÓÓÓL! $NEV bődületes erővel bombázta a labdát a kapuba!
 A labda a hálóban. A fociban ezt gólnak hívják. $NEV, $RANDPLAYER beadása után megrúgja $GOLOKSZAMA. gólját a meccsen.
 Az előző 5 percben csak másodpercekig volt a $CSAPATNEV birtokában a labda, de vajon mit tartogat még a mérkőzés. $NEV LŐ! GÓL!
 Gól! $CSAPATNEV $NEV nevű játékosa betalállt a hálóba a mérkőzés $IDO. percében.
+$NEV egy bődületesen nagyot rúg a labdába, ami a hálóba repül. Ez gól!
 ;
 MissLongShot
 $NEV lő! Óóóha... Az előző sokkal jobban sikerült neki.
@@ -27,11 +29,15 @@ A kapus nincs a kapuban, mostmár $NEV egyetlen feladata a kapu eltalálása! $N
 Ha a kapu felé még egy kaput emeltek volna, úgy hiszem $NEV lövése még úgy is fölé ment volna.
 A mindenit! Nemcsak, hogy kivédte, meg is fogta.
 $NEV Jól eltalálta a kapust, bár nem hiszem, hogy ez lett volna a célja.
+$NEV egy bődületesen nagyot rúg a labdába, ami sajnos elhagyja nemcsak a játékteret, de még a stadiont is.
+$NEV egy kiugratás után egy az egy ellen megy a kapus ellen. Ezt nem lehet elrontani. Ő mégis elrontja!
 ;
 Corner
 $NEV Nem találta el tökéletesen a labdát, de így se volt rossz próbálkozás. Végül szögletre megy ki a laszti.
 Az ilyen megmozdulások után azt hiszem, $NEV szobrot fog kapni csapattársaitól.
 $NEV Jól eltalálta a kapust, bár nem hiszem, hogy ez lett volna a célja. Szöglet!
+$NEV rárúgta egy ellenfél játékosra a labdát, majd az kiment. Szögletet rúghat $CSAPATNEV csapata
+$GOALKEEPERNAME $NEV felé próbálta kirúgni a labdát, de a nagy szél miatt szöglet lett belőle.
 ;
 NoBigChance
 $NEV Jó helyen volt, jó időben. Ennyit a támadásról egyelőre
@@ -52,10 +58,17 @@ $NEV megsértette a fairplay $RAND. szabályát, ezért ki kell állítani. Nagy
 ;
 PenaltyGoal
 $NEV elküldi a kapust a rossz irányba ÉS... Gól! A kaupfáról pattant be a laszti.
-$NEV kihagyja a büntetőt, de a játékvezető újrarugatja, mert a kapus elmozdult a vonalról. $NEV újra nekifut! GÓL!
+$NEV kihagyja a büntetőt, de a játékvezető újrarugatja, mert a kapus elmozdult a vonalról. $NEV újra nekifut! GÓL
 $NEV berúgja a büntetőt, de a játékvezető újrarugatja, mert a kapus elmozdult a vonalról. $NEV újra nekifut! Megint gól!
+Gól a tizenegyesből! $NEV a csukája külső élével találta el a lasztit, ami a hálóba repült
+Gól a tizenegyesből! $NEV a csukája külső élével találta el a lasztit, ami a hálóba Gurult
 ;
 PenaltyMiss
 $NEV elküldi a kapust a rossz irányba ÉS... a kapu mellé rúgja a labdát
 $NEV berúgja a büntetőt, de a játékvezető újrarugatja, mert a kapus elmozdult a vonalról. $NEV újra nekifut! Most kimarad! Hatalmas baki!
 $NEV berúgja a kihagyja, de a játékvezető újrarugatja, mert a kapus elmozdult a vonalról. $NEV újra nekifut! Újra kimarad!
+
+;
+Injury
+$NEV sántít. A mozdulatai alapján húzódásra gyanakszom. Hosszú sérülésre számíthatunk
+$NEV a földön marad egy csúnya szabálytalanság után. Vajon tudja-e folytatni? Nem!
