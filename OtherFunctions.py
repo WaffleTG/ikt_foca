@@ -101,3 +101,6 @@ def GetTeamIndexByName(teamName: str):
 
 def GetIndexByPlayer(team:Team,player:Player):
     return list(team.Players.values()).index(player)
+
+def GetTeamGK(team:Team):
+    return team.Players.get("GK", random.choice(list(team.Players.values())))

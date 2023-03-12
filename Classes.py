@@ -14,16 +14,17 @@ class Player:
             "Stamina": stamina,
             "Agressivness": agressivness
         }
+        self.Fitness = 100
         # self.Defending = defending
         # self.Pace = pace
         # self.Attacking = attacking
         # self.Passing = passing
         # self.Teamwork = teamwork
         self.Position = pos
-        self.Overall = int((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/5.5)
+        self.SetOverall()
         self.YellowCards = 0
-        print(self.Overall)
-
+    def SetOverall(self):
+        self.Overall = int(((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/550)*self.Fitness)
 class Team:
     def __init__(self, name: str, formation: str, tactics: dict,players: dict) -> None:
         self.Name = name
@@ -76,14 +77,19 @@ class Team:
             elif "W" in key or "T" in key:
                 print(player.Overall)
                 attOvr += player.Overall*self.getTeamWork()/50/3
-        self.MidOverall = midOvr
-        self.DefOverall = defOvr
-        self.AttOverall = attOvr
+        self.MidOverall = abs(int(midOvr -self.Tactics["Defwidth"]/20 + self.Tactics["Defline"]/20 + self.Tactics["Agressivness"]/20 + self.Tactics["Defstyle"]/20 + self.Tactics["Attackwidth"]/40 - self.Tactics["Passlength"]/10 - self.Tactics["Attackspeed"]/20 - self.Tactics["Shootrate"]/40))
+        self.DefOverall = abs(int(defOvr + self.Tactics["Defwidth"]/20 - self.Tactics["Defline"]/10 + self.Tactics["Agressivness"]/20 - self.Tactics["Defstyle"]/10 + self.Tactics["Passlength"]/10 + self.Tactics["Attackspeed"]/20 - self.Tactics["Shootrate"]/20))
+        self.AttOverall = abs(int(attOvr - self.Tactics["Defwidth"]/40 + self.Tactics["Defline"]/20 - self.Tactics["Agressivness"]/40 - self.Tactics["Attackwidth"]/20 - self.Tactics["Passlength"]/10 - self.Tactics["Attackspeed"]/20 + self.Tactics["Shootrate"]/10)) 
         self.KeeperOverall = keepOvr
         if debug:
             print(f"Teamname: {self.Name} Attack Overall: {self.AttOverall} Midfield Overall: {self.MidOverall} Defense Overall: {self.DefOverall} Keeper Overall: {self.KeeperOverall} Teamwork Overall: {self.getTeamWork()}")
         
-
+    def HandleFitness(self, Matchlength:int):
+        self.GetActivePlayers()
+        for player in self.ActivePlayers.values():
+            player.Fitness -= random.uniform(50/Matchlength, 50/Matchlength+(100-player.Stats["Stamina"])/100)
+            player.SetOverall()
+        self.SetStats(self.SimulationId, True)
 class Chance:
     def __init__(self, time, team: Team, chanceType:str, player:Player) -> None:
         self.Time = time
@@ -100,7 +106,3 @@ class Ref:
         self.Name = name
         self.Patience =  patience
         self.Mistakes = mistakes
-# print(Commentaries.keys())
-# Chance1 = Chance(1, Team("asdasd", "4-4-2", {}, {"LM":  Player("kindina", 1, 2,3,4,5,6,7,8,"a")}), "Goal", Player("d", 1, 2,3,4,5,6,7,8,"a"))
-# Chance1.GenerateComm()
-# print(Chance1.Comm)

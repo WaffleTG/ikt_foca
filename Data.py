@@ -7,7 +7,8 @@ ChanceCountModes = {
 }
 GameModes = ["Normal", "Speciális"]
 SaveFileRoute = "Savefiles/"
-TacticsKeys = ["Defwidth", "Defline","Agressivness","Defstyle","Attackwidth","Passlength","Attackspeed","Shootrate"]
+TacticsKeys = ["Defwidth", "Defline","Agressivness","Defstyle","Attackwidth",
+               "Passlength","Attackspeed","Shootrate"]
 with open("Datafiles/Commentator.txt", "r", encoding="utf-8") as f:
     scenarios = f.read().split(";")
     Commentaries = {}

@@ -7,3 +7,13 @@ body{
     margin-left: auto;
     margin-right: auto;
 }
+li{
+    font-weight: bold;
+    font-size: large;
+}
+a{
+    text-decoration: none;
+}
+a:hover{
+    color: red;
+}

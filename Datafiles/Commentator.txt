@@ -16,7 +16,7 @@ $NEV lövése csak akkor menne be, ha a kaput odébb tolnák. Micsoda szerencse,
 $NEV egész jól eltalálta a labdát, de még a kaput is! Ezt gólnak hívják!
 A szurkolók már beintenék a lest, de a játék megy tovább. $NEV, EZ HELYZET! $NEV HATALMAS gólt szerez, de vajon mit mond a VAR? GÓÓL!
 Hatalmas lövés! GÓÓÓL! $NEV bődületes erővel bombázta a labdát a kapuba!
-A labda a hálóban. A fociban ezt gólnak hívják. $NEV $RANDPLAYER beadása után megrúgja $GOLOKSZAMA. gólját a meccsen.
+A labda a hálóban. A fociban ezt gólnak hívják. $NEV, $RANDPLAYER beadása után megrúgja $GOLOKSZAMA. gólját a meccsen.
 Az előző 5 percben csak másodpercekig volt a $CSAPATNEV birtokában a labda, de vajon mit tartogat még a mérkőzés. $NEV LŐ! GÓL!
 Gól! $CSAPATNEV $NEV nevű játékosa betalállt a hálóba a mérkőzés $IDO. percében.
 ;
