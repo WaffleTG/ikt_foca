@@ -1,6 +1,7 @@
 body{
     background-image: linear-gradient(to bottom right, lightblue, white);
     background-attachment: fixed;
+    padding-bottom: 50px;
 }
 
 .card{
@@ -16,4 +17,7 @@ a{
 }
 a:hover{
     color: red;
+}
+.profilkep{
+    width: 10vw;
 }
