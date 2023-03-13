@@ -67,7 +67,6 @@ PenaltyMiss
 $NEV elküldi a kapust a rossz irányba ÉS... a kapu mellé rúgja a labdát
 $NEV berúgja a büntetőt, de a játékvezető újrarugatja, mert a kapus elmozdult a vonalról. $NEV újra nekifut! Most kimarad! Hatalmas baki!
 $NEV berúgja a kihagyja, de a játékvezető újrarugatja, mert a kapus elmozdult a vonalról. $NEV újra nekifut! Újra kimarad!
-
 ;
 Injury
 $NEV sántít. A mozdulatai alapján húzódásra gyanakszom. Hosszú sérülésre számíthatunk

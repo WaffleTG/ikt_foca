@@ -102,7 +102,7 @@ class Chance:
         self.Player = player
     def GenerateComm(self):
         self.Team.GetActivePlayers()
-        self.Comm = random.choice(Commentaries[self.ChanceType]).replace("$NEV", self.Player.Name.split()[0]).replace("$IDO", str(self.Time)).replace("$CSAPATNEV", self.Team.Name).replace("$RANDPLAYER", random.choice(list(self.Team.ActivePlayers.values())).Name).replace("$RAND", str(random.randint(1,200))).replace("$GOLOKSZAMA", str(self.Player.Goals)).replace("$GOALKEEPERNAME",self.Team.Players.get("GK", random.choice(list(self.Team.Players.values()))).Name)
+        self.Comm = random.choice(Commentaries[self.ChanceType]).replace("$NEV", self.Player.Name.split()[-1]).replace("$IDO", str(self.Time)).replace("$CSAPATNEV", self.Team.Name).replace("$RANDPLAYER", random.choice(list(self.Team.ActivePlayers.values())).Name).replace("$RAND", str(random.randint(1,200))).replace("$GOLOKSZAMA", str(self.Player.Goals)).replace("$GOALKEEPERNAME",self.Team.Players.get("GK", random.choice(list(self.Team.Players.values()))).Name)
         
 class Ref:
     def __init__(self, patience, mistakes, name) -> None:
