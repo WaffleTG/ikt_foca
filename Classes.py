@@ -25,7 +25,7 @@ class Player:
         self.YellowCards = 0
         self.Goals = 0
     def SetOverall(self):
-        self.Overall = int(((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/550)*self.Fitness)
+        self.Overall = int(((sum(self.Stats.values()) / 2 + float(max(self.Stats.values())) * 1.5)/550)*abs(self.Fitness))
 class Team:
     def __init__(self, name: str, formation: str, tactics: dict,players: dict) -> None:
         self.Name = name
@@ -72,15 +72,14 @@ class Team:
         except KeyError:
             pass
         for key, player in self.ActivePlayers.items():
+            player.SetOverall()
             if "B" in key:
-                print(player.Overall)
                 defOvr += player.Overall*self.getTeamWork()/50/4
             elif "M" in key:
                 midOvr += player.Overall*self.getTeamWork()/50/3
-                print(player.Overall)
             elif "W" in key or "T" in key:
-                print(player.Overall)
                 attOvr += player.Overall*self.getTeamWork()/50/3
+            # print(player.Overall)
         self.MidOverall = abs(int(midOvr -self.Tactics["Defwidth"]/20 + self.Tactics["Defline"]/20 + self.Tactics["Agressivness"]/20 + self.Tactics["Defstyle"]/20 + self.Tactics["Attackwidth"]/40 - self.Tactics["Passlength"]/10 - self.Tactics["Attackspeed"]/20 - self.Tactics["Shootrate"]/40))
         self.DefOverall = abs(int(defOvr + self.Tactics["Defwidth"]/20 - self.Tactics["Defline"]/10 + self.Tactics["Agressivness"]/20 - self.Tactics["Defstyle"]/10 + self.Tactics["Passlength"]/10 + self.Tactics["Attackspeed"]/20 - self.Tactics["Shootrate"]/20))
         self.AttOverall = abs(int(attOvr - self.Tactics["Defwidth"]/40 + self.Tactics["Defline"]/20 - self.Tactics["Agressivness"]/40 - self.Tactics["Attackwidth"]/20 - self.Tactics["Passlength"]/10 - self.Tactics["Attackspeed"]/20 + self.Tactics["Shootrate"]/10)) 
@@ -93,7 +92,7 @@ class Team:
         for player in self.ActivePlayers.values():
             player.Fitness -= random.uniform(50/Matchlength, 50/Matchlength+(100-player.Stats["Stamina"])/100)
             player.SetOverall()
-        self.SetStats(self.SimulationId, True)
+        self.SetStats(self.SimulationId)
 class Chance:
     def __init__(self, time, team: Team, chanceType:str, player:Player) -> None:
         self.Time = time

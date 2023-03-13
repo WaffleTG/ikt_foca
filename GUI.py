@@ -30,7 +30,7 @@ class GUI(ctk.CTk):
         self.SimTeamFont = ('Helvetica', 36, 'bold')
         self.ActiveTeam = LastTeam
         self.geometry("1100x580")
-        self.title("Football Simulation")
+        self.title("FOCIMULÁTOR")
         self.resizable(False, False)
         self.StartScreen()            
         self.bind_class('Entry', '<Control-BackSpace>', self.entry_ctrl_bs)
@@ -197,10 +197,10 @@ class GUI(ctk.CTk):
         try:
             team1 = Teams[self.team1Var.get()]
             team2 = Teams[self.team2Var.get()]
-            team1.SetStats(GetTeamIndexByName(team1.Name))
-            team2.SetStats(GetTeamIndexByName(team2.Name))
+            team1.SetStats(0)
+            team2.SetStats(1)
         except AttributeError:
-            team1.SetStats(GetTeamIndexByName(team1.Name))
+            team1.SetStats(0)
         if args[1] == 0:
             self.Att1Label.configure(text=f"Támadás: {Teams[self.team1Var.get()].AttOverall:.0f}")
             self.Mid1Label.configure(text=f"Középpálya: {Teams[self.team1Var.get()].MidOverall:.0f}")
@@ -250,13 +250,6 @@ class GUI(ctk.CTk):
         
         #harmadik sor
         self.CommentaryLabel = ctk.CTkLabel(self,width=900,height=150, anchor="nw",textvariable = self.CommentaryVar, font=self.EntryFont, bg_color="grey20", fg_color="grey20").grid(column=0, columnspan=5, row=2)
-        # self.CommentaryBox = ctk.CTkFrame(self, width=900, height=150)
-        # self.CommentaryBox.grid(column=0,columnspan=5 ,row=2)
-        # self.CommentaryFrame = ctk.CTkFrame(self.CommentaryBox, width=900, height=150)
-        # self.CommentaryFrame.pack(fill="both")
-        # self.CommentaryLabel = ctk.CTkLabel(self.CommentaryFrame,width=900,height=150, textvariable = self.CommentaryVar, font=self.EntryFont).pack()
-        
-        #negyedik sor
         self.EndButton = ctk.CTkButton(self, 180,40, text="Mérkőzés Feladása", font=self.SmallerButtonFont,command=self.EndGame)
         self.EndButton.grid(column=0,row=3, padx=(73,0))
         self.StartButton = ctk.CTkButton(self, 180,40, text="Szimuláció indítása", font=self.SmallerButtonFont, command=lambda: self.StartSim(team1,team2, ChanceCount, MatchLength, self.timeVar.get()))
@@ -266,6 +259,7 @@ class GUI(ctk.CTk):
         self.TacticsChangeButton = ctk.CTkButton(self, 180,40, text="Taktika Szerkesztése", font=self.SmallerButtonFont, command=lambda:self.addBtnClick("ingame", gameArgs={"team1":team1, "team2":team2, "ChanceCount": ChanceCount, "MatchLength": MatchLength}))
         self.TacticsChangeButton.grid(column=3,columnspan=2, row=3, pady=20, sticky="w", padx=(20,0))
         self.ActiveTeam = team1
+        self.BackButton = ctk.CTkButton(self, 180,40, text="Vissza", font=self.SmallerButtonFont, command=self.GameVsAi).grid(column=0, row=4, padx=(73,0))
         #Simulation
     def EndGame(self):
         pass
@@ -706,8 +700,8 @@ class GUI(ctk.CTk):
         if mode == "ingame":
             self.BackBtn.configure(command=lambda:self.SimulationScreen(gameArgs["team1"], gameArgs["team2"], gameArgs["ChanceCount"], MatchLength=gameArgs["MatchLength"], firstTime=False))
             self.AddPlayerButton.configure(command=lambda:self.TeamFormationScreenBtn(mode, gameArgs))
-            gameArgs["team1"].SetStats()
-            gameArgs["team2"].SetStats()
+            gameArgs["team1"].SetStats(0)
+            gameArgs["team2"].SetStats(1)
     def GenRandTacs(self):
         tactics = {key: round((random.randint(10,100)/5))*5 for key in TacticsKeys}
         return tactics
@@ -933,7 +927,9 @@ class GUI(ctk.CTk):
         try:
             frame = self.nametowidget(self.nametowidget(widget.winfo_parent()).winfo_parent())
         except Exception:
+            frame = self.nametowidget((widget.winfo_parent()))
             pass
+        print(frame)
         if id(frame) == id(self.FormationFrame):
             xOffest = self.GKLabel.winfo_rootx() - PosCords["GK"][0]
             yOffset = self.GKLabel.winfo_rooty() - PosCords["GK"][1] + 4
