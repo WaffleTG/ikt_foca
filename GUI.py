@@ -201,16 +201,19 @@ class GUI(ctk.CTk):
             team2.SetStats(1)
         except AttributeError:
             team1.SetStats(0)
-        if args[1] == 0:
-            self.Att1Label.configure(text=f"Támadás: {Teams[self.team1Var.get()].AttOverall:.0f}")
-            self.Mid1Label.configure(text=f"Középpálya: {Teams[self.team1Var.get()].MidOverall:.0f}")
-            self.Def1Label.configure(text=f"Védelem: {Teams[self.team1Var.get()].DefOverall:.0f}")
-            self.TeamWork1Label.configure(text=f"Összhang: {Teams[self.team1Var.get()].getTeamWork():.0f}")
-        else:
-            self.Att2Label.configure(text=f"Támadás: {Teams[self.team2Var.get()].AttOverall:.0f}")
-            self.Mid2Label.configure(text=f"Középpálya: {Teams[self.team2Var.get()].MidOverall:.0f}")
-            self.Def2Label.configure(text=f"Védelem: {Teams[self.team2Var.get()].DefOverall:.0f}")
-            self.TeamWork2Label.configure(text=f"Összhang: {Teams[self.team2Var.get()].getTeamWork():.0f}")
+        try:
+            if args[1] == 0:
+                self.Att1Label.configure(text=f"Támadás: {Teams[self.team1Var.get()].AttOverall:.0f}")
+                self.Mid1Label.configure(text=f"Középpálya: {Teams[self.team1Var.get()].MidOverall:.0f}")
+                self.Def1Label.configure(text=f"Védelem: {Teams[self.team1Var.get()].DefOverall:.0f}")
+                self.TeamWork1Label.configure(text=f"Összhang: {Teams[self.team1Var.get()].getTeamWork():.0f}")
+            else:
+                self.Att2Label.configure(text=f"Támadás: {Teams[self.team2Var.get()].AttOverall:.0f}")
+                self.Mid2Label.configure(text=f"Középpálya: {Teams[self.team2Var.get()].MidOverall:.0f}")
+                self.Def2Label.configure(text=f"Védelem: {Teams[self.team2Var.get()].DefOverall:.0f}")
+                self.TeamWork2Label.configure(text=f"Összhang: {Teams[self.team2Var.get()].getTeamWork():.0f}")
+        except Exception:
+            pass
     def RandomiseTeam(self, teamNum = 0):
         if teamNum == 0:
             self.team1Var.set(Teams[list(Teams.keys())[random.randint(0,len(Teams)-1)]].Name)
@@ -254,13 +257,51 @@ class GUI(ctk.CTk):
         self.EndButton.grid(column=0,row=3, padx=(73,0))
         self.StartButton = ctk.CTkButton(self, 180,40, text="Szimuláció indítása", font=self.SmallerButtonFont, command=lambda: self.StartSim(team1,team2, ChanceCount, MatchLength, self.timeVar.get()))
         self.StartButton.grid(column=1, row=3, pady=20)
-        self.StopButton = ctk.CTkButton(self, 180,40, text="Szimuláció Megállítása", font=self.SmallerButtonFont, command=self.StopSim, state="disabled")
+        self.StopButton = ctk.CTkButton(self, 220,40, text="Szimuláció Megállítása", font=self.SmallerButtonFont, command=self.StopSim, state="disabled")
         self.StopButton.grid(column=2, row=3, pady=20)
-        self.TacticsChangeButton = ctk.CTkButton(self, 180,40, text="Taktika Szerkesztése", font=self.SmallerButtonFont, command=lambda:self.addBtnClick("ingame", gameArgs={"team1":team1, "team2":team2, "ChanceCount": ChanceCount, "MatchLength": MatchLength}))
-        self.TacticsChangeButton.grid(column=3,columnspan=2, row=3, pady=20, sticky="w", padx=(20,0))
+        self.QuickSimButton = ctk.CTkButton(self, 200,40, text="Meccs Vége", font=self.SmallerButtonFont, command=lambda:self.CryAboutit(team1)).grid(column=3,columnspan=2, row=3, sticky="w", padx=(20,0))
+        
         self.ActiveTeam = team1
-        self.BackButton = ctk.CTkButton(self, 180,40, text="Vissza", font=self.SmallerButtonFont, command=self.GameVsAi).grid(column=0, row=4, padx=(73,0))
+        self.BackButton = ctk.CTkButton(self, 180,40, text="Vissza", font=self.EntryFont, command=self.GameVsAi).grid(column=0, row=4, padx=(73,0))
+        self.BoostTeamButton = ctk.CTkButton(self, 180,40, text="Csapat Buzdítása", font=self.SmallerButtonFont, command=lambda:self.BoostTeam(team1)).grid(column=1, row=4)
+        self.CryButton = ctk.CTkButton(self, 220,40, text="Reklamálás", font=self.SmallerButtonFont, command=lambda:self.CryAboutit(team1)).grid(column=2, row=4)
+        self.TacticsChangeButton = ctk.CTkButton(self, 200,40, text="Taktika Szerkesztése", font=self.SmallerButtonFont, command=lambda:self.addBtnClick("ingame", gameArgs={"team1":team1, "team2":team2, "ChanceCount": ChanceCount, "MatchLength": MatchLength}))
+        self.TacticsChangeButton.grid(column=3,columnspan=2, row=4, sticky="w", padx=(20,0))
+        
         #Simulation
+    def BoostTeam(self, team:Team):
+        
+        self.StopSim(True)
+        boostAmount = round(random.uniform(0.95, 1.05), 2)
+        if boostAmount > 1:
+            msg = f"Buzdítottad a csapatod, így teljesítményük {boostAmount*100-100:.0f}%-al nőtt!"
+        if boostAmount < 1:
+            msg = f"Buzdítottad a csapatod, de sajnos teljesítményük {abs(boostAmount*100-100):.0f}%-al csökkent!"
+        else:
+            msg = "Buzdítottad a csapatod, de nem hallották egy erős széllökés miatt. Teljesítményük nem változott!"
+        team.AttOverall *= boostAmount
+        team.DefOverall *= boostAmount
+        team.MidOverall *= boostAmount
+        team.KeeperOverall *= boostAmount
+        ctkm.CTkMessagebox(self, message=msg, title="Buzdítás")
+    def CryAboutit(self, team:Team):
+       
+        self.StopSim(True)
+        randNum = random.randint(0,2)
+        if randNum < 2:
+            boostAmount = round(random.uniform(1.01, 1.10), 2)
+            team.AttOverall *= boostAmount
+            team.DefOverall *= boostAmount
+            team.MidOverall *= boostAmount
+            team.KeeperOverall *= boostAmount
+            msg = "A reklamációdat elfogadta a játékvezető. Egyetért veled, ezért neked fog fújni!"
+            icon = "check"
+        else:
+            msg = "A játékvezető ordítva küld ki stadionból! A meccsnek ezzel számodra vége!"
+            icon = "cancel"
+        ctkm.CTkMessagebox(self, message=msg, title="Reklamálás", icon=icon)
+    def QuickSim(self):
+        pass
     def EndGame(self):
         pass
     def tksleep(self, time:float):
